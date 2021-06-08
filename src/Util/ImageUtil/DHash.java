@@ -29,7 +29,7 @@ public class DHash extends Thread {
      *
      * @return the average values of pixels of each image segment
      */
-    private float[] imageSegmentation() { //fixme: functionality untested
+    private float[] imageSegmentation() { //fixme: functionality untested, the unmodified dHash algorithm
         int width = image.width;
         int height = image.height;
         int segmentHeight = height / rowNum;
@@ -67,8 +67,15 @@ public class DHash extends Thread {
         return segmentAvg;
     }
 
-    public void getBitString(float[] segmentAvg) {
+    private void bitString(float[] segmentAvg) {
 
+    }
+
+    public int hammingDistance(String bs1, String bs2) {
+
+
+        return 0;
+        // fixme: implement the method
     }
 
 
@@ -98,6 +105,7 @@ public class DHash extends Thread {
 
 
     public void run() {
+//        bitString = imageSegmentation();
 
     }
 

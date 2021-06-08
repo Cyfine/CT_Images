@@ -40,7 +40,7 @@ public class ImageReader extends PApplet {
                 imgName = header + cnt++ + "." + format;
                 PImage newImage = loadImage(dataPath  + '/'  + imgName);
                 if(newImage == null){
-                    System.out.println("File reading finished.");
+                    System.out.println("Ignore above error message, file reading finished.");
                     break;
                 }
                 images.add(newImage);
