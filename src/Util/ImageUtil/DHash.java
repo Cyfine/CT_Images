@@ -67,15 +67,27 @@ public class DHash extends Thread {
         return segmentAvg;
     }
 
-    private void bitString(float[] segmentAvg) {
+    private int[] bitString(float[] segmentAvg) {
+        int[] result = new int[rowNum*rowNum];
+        for (int i = 0; i < rowNum; i++) {
+            for (int j = 0; j < rowNum; j++) {
+                result[i*rowNum + j ] = Integer.signum((int)(segmentAvg[i * rowNum + j+1] - segmentAvg[i * rowNum + j]));
+            }
+        }
+        return result;
 
     }
 
-    public int hammingDistance(String bs1, String bs2) {
+    public int hammingDistance(int[] bs1 , int[] bs2) {
 
+        int distance = 0 ;
+        if(bs1.length != bs2.length)
+            return -1;
 
-        return 0;
-        // fixme: implement the method
+        for(int i = 0 ; i < bs1.length ; i ++)
+            distance += bs1[i]^bs2[i];
+
+        return distance;
     }
 
 
