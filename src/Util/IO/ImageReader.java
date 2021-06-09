@@ -35,11 +35,11 @@ public class ImageReader extends PApplet {
         images = new LinkedList<PImage>();
         String imgName;
         int cnt = 1;
-        for (;;) {
+        for (; ; ) {
             try {
                 imgName = header + cnt++ + "." + format;
-                PImage newImage = loadImage(dataPath  + '/'  + imgName);
-                if(newImage == null){
+                PImage newImage = loadImage(dataPath + '/' + imgName);
+                if (newImage == null) {
                     System.out.println("Ignore above error message, file reading finished.");
                     break;
                 }
@@ -50,13 +50,6 @@ public class ImageReader extends PApplet {
         }
     }
 
-    public void setup() {
-
-    }
-
-    public void draw() {
-
-    }
 
     public static void test() {
         ImageReader reader = new ImageReader("C:/Users/30421/Desktop/test", "test_", ImgFormat.jpg);
