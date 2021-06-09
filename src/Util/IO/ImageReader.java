@@ -10,14 +10,14 @@ public class ImageReader extends PApplet {
     private List images = new LinkedList<PImage>();
     private String dataPath;
     private String header;
-    private imgFormat format;
+    private ImgFormat format;
 
     /**
      * @param dir    the data path of the image file
      * @param header the header of the image file name
      * @param format the enumeration type for image format, png, jpg, jpeg, gif, tga is supported
      */
-    public ImageReader(String dir, String header, imgFormat format) {
+    public ImageReader(String dir, String header, ImgFormat format) {
         dataPath = dir;
         this.header = header;
         this.format = format;
@@ -59,7 +59,7 @@ public class ImageReader extends PApplet {
     }
 
     public static void test() {
-        ImageReader reader = new ImageReader("C:/Users/30421/Desktop/test", "test_", ImageReader.imgFormat.jpg);
+        ImageReader reader = new ImageReader("C:/Users/30421/Desktop/test", "test_", ImgFormat.jpg);
         String[] appletArgs = {"ImageReader"};
         reader.main(appletArgs);
     }
@@ -72,7 +72,7 @@ public class ImageReader extends PApplet {
         return images;
     }
 
-    public enum imgFormat {
+    public enum ImgFormat {
         png, jpg, jpeg, gif, tga
     }
 }

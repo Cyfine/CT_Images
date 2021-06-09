@@ -12,7 +12,7 @@ public class DHash extends Thread {
     private PImage image;
     private int rowNum;
 
-    public String bitString;
+    public int[] dHash;
 
     /**
      * @param image     the image to be processed
@@ -78,7 +78,7 @@ public class DHash extends Thread {
 
     }
 
-    public int hammingDistance(int[] bs1, int[] bs2) {
+    public static int hammingDistance(int[] bs1, int[] bs2) {
 
         int distance = 0;
         if (bs1.length != bs2.length)
@@ -90,14 +90,20 @@ public class DHash extends Thread {
         return distance;
     }
 
-    public double similarity(int hammingDistance) {
-        return 1 - hammingDistance/(rowNum*rowNum);
+    public static double similarity(int[] bs1, int[] bs2) {
+        int rowNum = bs1.length;
+        int distance = hammingDistance(bs1, bs2);
+
+        if (distance == -1)
+            return distance;
+
+        return 1 - distance / (rowNum * rowNum);
     }
 
 
     /**
      * @param rgb composite RGB value
-     * @return decomposed RGB  red value
+     * @return decomposed RGB red value
      */
     private static int red(int rgb) {
         return (rgb >> 16) & 0xFF;
@@ -121,8 +127,7 @@ public class DHash extends Thread {
 
 
     public void run() {
-//        bitString = imageSegmentation();
-
+        dHash = bitString(imageSegmentation());
     }
 
     public static void main(String[] args) {
