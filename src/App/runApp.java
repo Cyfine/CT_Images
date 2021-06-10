@@ -2,6 +2,7 @@ package App;
 
 import java.util.*;
 
+import com.sun.scenario.effect.impl.state.LinearConvolveKernel;
 import processing.core.*;
 
 import Util.IO.*;
@@ -22,7 +23,8 @@ public class runApp {
 //        System.out.println(DHash.similarity(hashValues.get(6), hashValues.get(7)));
 
         List<PImage> images;
-        List<int[]> hashValues;
+        List<int[]> hashValues = null;
+        List<Integer> adjHammingDist = null;
         String command;
         Scanner in = new Scanner(System.in);
         boolean exit = false;
@@ -74,7 +76,17 @@ public class runApp {
                     } while (format == null);
                     images = loadImages(path, header, format, index);
                     hashValues = dHashing(images);
+                    adjHammingDist = adjacentHammingDist(hashValues);
                     printHashes(hashValues);
+                    printHammingDist(adjHammingDist);
+                    break;
+                case "print":
+                    if (hashValues != null && adjHammingDist != null) {
+                        printHashes(hashValues);
+                        printHammingDist(adjHammingDist);
+                    }else{
+                        System.out.println("Load images first.");
+                    }
                     break;
                 default:
                     System.out.println("Invalid command");
@@ -94,6 +106,12 @@ public class runApp {
             printIntArray(array);
         }
     }
+
+    private static void printHammingDist(List<Integer> list) {
+        System.out.println("Hamming Distance of Adjacent images:");
+        System.out.println(list);
+    }
+
 
     private static void printIntArray(int[] array) {
         System.out.print("[");
@@ -163,6 +181,17 @@ public class runApp {
         }
 
         return dHashValues;
+    }
+
+
+    private static List<Integer> adjacentHammingDist(List<int[]> hashes) {
+        List<Integer> list = new LinkedList<>();
+
+        for (int i = 0; i < hashes.size() - 1; i++) {
+            list.add(DHash.hammingDistance(hashes.get(i), hashes.get(i + 1)));
+        }
+
+        return list;
     }
 
 }
