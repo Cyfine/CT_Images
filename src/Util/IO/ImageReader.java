@@ -11,6 +11,7 @@ public class ImageReader extends PApplet {
     private String dataPath;
     private String header;
     private ImgFormat format;
+    private int startIndex = 1;
 
     /**
      * @param dir    the data path of the image file
@@ -24,6 +25,11 @@ public class ImageReader extends PApplet {
         readImages();
     }
 
+    public ImageReader(String dir, String header , ImgFormat format, int startIndex){
+        this(dir, header, format);
+        this.startIndex = startIndex;
+    }
+
 
     /**
      * A set of images in the directory with structured filename will be loaded to the program
@@ -34,7 +40,7 @@ public class ImageReader extends PApplet {
     private void readImages() {
         images = new LinkedList<PImage>();
         String imgName;
-        int cnt = 1;
+        int cnt = startIndex;
         for (; ; ) {
             try {
                 imgName = header + cnt++ + "." + format;

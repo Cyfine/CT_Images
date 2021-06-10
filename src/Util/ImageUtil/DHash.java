@@ -46,17 +46,20 @@ public class DHash extends Thread {
 
 
                 if (i == rowNum - 1) {
-                    i = width;  // if the width of the image can not be divided by the segment width
+                    lowerBound = height;
+                    //As the width and height may not be fully dived, when processing the segments right most,
+                    //the right bound should be the width of the image
                 }
                 if (j == rowNum) {
-                    j = height;
+                    rightBound = width;
+                    // Same reason as above
                 }
 
-                for (int k = segmentWidth * i; k < rightBound; k++) {  // x coordinate
-                    for (int l = segmentHeight * j; l < lowerBound; l++) { // y coordinate
-                        float r = red(image.pixels[i * width + l]);
-                        float g = green(image.pixels[i * width + l]);
-                        float b = blue(image.pixels[i * width + l]);
+                for (int k = segmentHeight * i; k < lowerBound; k++) {  // x coordinate
+                    for (int l = segmentWidth * j; l < rightBound; l++) { // y coordinate
+                        float r = red(image.pixels[k * width + l]);
+                        float g = green(image.pixels[k * width + l]);
+                        float b = blue(image.pixels[k * width + l]);
                         sum += (r + g + b) / 3;
                         cnt++;
                     }
@@ -71,11 +74,18 @@ public class DHash extends Thread {
         int[] result = new int[rowNum * rowNum];
         for (int i = 0; i < rowNum; i++) {
             for (int j = 0; j < rowNum; j++) {
-                result[i * rowNum + j] = Integer.signum((int) (segmentAvg[i * rowNum + j + 1] - segmentAvg[i * rowNum + j]));
+                result[i * rowNum + j] = sigNum( (segmentAvg[i * rowNum + j + 1] - segmentAvg[i * rowNum + j]));
             }
         }
         return result;
 
+    }
+
+    private static int sigNum(float diff) {
+        if (diff > 0)
+            return 0;
+
+        return 1;
     }
 
     public static int hammingDistance(int[] bs1, int[] bs2) {
@@ -91,13 +101,12 @@ public class DHash extends Thread {
     }
 
     public static double similarity(int[] bs1, int[] bs2) {
-        int rowNum = bs1.length;
         int distance = hammingDistance(bs1, bs2);
 
         if (distance == -1)
             return distance;
 
-        return 1 - distance / (rowNum * rowNum);
+        return 1.0 - (distance * 1.0 / (bs1.length));
     }
 
 
