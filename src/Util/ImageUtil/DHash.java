@@ -108,8 +108,8 @@ public class DHash extends Thread {
                         float r = red(image.pixels[k * width + l]);
                         float g = green(image.pixels[k * width + l]);
                         float b = blue(image.pixels[k * width + l]);
-                        float greyScale = (r+g+b)/3 ;
-                        if(greyScale == 255 || greyScale == 0) {
+                        float greyScale = (r + g + b) / 3;
+                        if (greyScale == 255 || greyScale == 0) {
                             cnt++;
                             sum += greyScale;
                         }
@@ -121,11 +121,61 @@ public class DHash extends Thread {
         return segmentAvg;
     }
 
+    private float[] imageSegmentationModified_1() {
+        int width = image.width;
+        int height = image.height;
+
+        int wCnt = 0;
+        int bCnt = 0;
+
+        int segmentHeight = height / rowNum;
+        int segmentWidth = width / (rowNum + 1);
+        float[] segmentAvg = new float[rowNum * (rowNum + 1)];
+
+        for (int i = 0; i < rowNum; i++) {
+            for (int j = 0; j < rowNum + 1; j++) {
+
+                int rightBound = segmentWidth * (j + 1);
+                int lowerBound = segmentHeight * (i + 1);
+                int cnt = 0;
+                float sum = 0;
+
+
+                if (i == rowNum - 1) {
+                    lowerBound = height;
+                    //As the width and height may not be fully dived, when processing the segments right most,
+                    //the right bound should be the width of the image
+                }
+                if (j == rowNum) {
+                    rightBound = width;
+                    // Same reason as above
+                }
+
+                for (int k = segmentHeight * i; k < lowerBound; k++) {  // x coordinate
+                    for (int l = segmentWidth * j; l < rightBound; l++) { // y coordinate
+                        float r = red(image.pixels[k * width + l]);
+                        float g = green(image.pixels[k * width + l]);
+                        float b = blue(image.pixels[k * width + l]);
+                        float greyScale = (r + g + b) / 3;
+                       if(greyScale == 255){
+                           wCnt ++ ;
+                       }
+                       if(greyScale == 0){
+                           bCnt++;
+                       }
+                    }
+                }
+                segmentAvg[i * (rowNum + 1) + j] = bCnt - wCnt;
+            }
+        }
+        return segmentAvg;
+    }
+
     private int[] bitString(float[] segmentAvg) {
         int[] result = new int[rowNum * rowNum];
         for (int i = 0; i < rowNum; i++) {
             for (int j = 0; j < rowNum; j++) {
-                result[i * rowNum + j] = sigNum( (segmentAvg[i * rowNum + j + 1] - segmentAvg[i * rowNum + j]));
+                result[i * rowNum + j] = sigNum((segmentAvg[i * rowNum + j + 1] - segmentAvg[i * rowNum + j]));
             }
         }
         return result;
@@ -187,14 +237,7 @@ public class DHash extends Thread {
 
 
     public void run() {
-//        dHash = bitString(imageSegmentation());// using the original dHash algorithm
-        dHash = bitString(imageSegmentationModified());// using the  adapted dHash algorithm for CT images
-    }
-
-    public static void main(String[] args) {
-        System.out.println(red(-9322772));
-        System.out.println(green(-9322772));
-        System.out.println(blue(-9322772));
-
+        dHash = bitString(imageSegmentation());// using the original dHash algorithm
+//        dHash = bitString(imageSegmentationModified_1());// using the  adapted dHash algorithm for CT images
     }
 }
