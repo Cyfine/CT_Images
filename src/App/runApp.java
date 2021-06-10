@@ -57,23 +57,25 @@ public class runApp {
                             System.out.println("Input the start index of images:");
                             System.out.print("Index>");
                             index = in.nextInt();
+                            in.nextLine();
                             System.out.println();
                         } catch (Exception e) {
                             valid = false;
                             System.out.println();
+                            in.nextLine();
                         }
                     } while (!valid); // Keep asking user to input if the user input is invalid.
 
-                    ImgFormat format ;
+                    ImgFormat format;
                     do {
                         System.out.println("Input the source images format:");
                         System.out.print("Format>");
                         format = formatParser(in.nextLine());
-                        System.out.println();
                     } while (format == null);
                     images = loadImages(path, header, format, index);
                     hashValues = dHashing(images);
                     printHashes(hashValues);
+                    break;
                 default:
                     System.out.println("Invalid command");
             }
@@ -83,6 +85,8 @@ public class runApp {
 
 
     private static void printHashes(List<int[]> list) {
+        if (list.size() == 0)
+            return;
         System.out.println("Calculated dHash value of images:");
         int cnt = 0;
         for (int[] array : list) {

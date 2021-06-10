@@ -22,12 +22,13 @@ public class ImageReader extends PApplet {
         dataPath = dir;
         this.header = header;
         this.format = format;
-        readImages();
+
     }
 
     public ImageReader(String dir, String header , ImgFormat format, int startIndex){
         this(dir, header, format);
         this.startIndex = startIndex;
+        readImages();
     }
 
 
@@ -46,7 +47,6 @@ public class ImageReader extends PApplet {
                 imgName = header + cnt++ + "." + format;
                 PImage newImage = loadImage(dataPath + '/' + imgName);
                 if (newImage == null) {
-                    System.out.println("Ignore above error message, file reading finished.");
                     break;
                 }
                 images.add(newImage);
