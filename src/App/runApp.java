@@ -2,7 +2,6 @@ package App;
 
 import java.util.*;
 
-import com.sun.scenario.effect.impl.state.LinearConvolveKernel;
 import processing.core.*;
 
 import Util.IO.*;
@@ -11,7 +10,10 @@ import Util.IO.ImageReader.ImgFormat;
 
 import java.util.Scanner;
 
+/*
+The path of the test file: D:/Confidential_Data/CT images/HEP0001 , header Se2Im, start Index 30
 
+ */
 public class runApp {
 
 
@@ -21,10 +23,10 @@ public class runApp {
 //        List<int[]> hashValues = dHashing(images);
 //        System.out.println(DHash.hammingDistance(hashValues.get(6), hashValues.get(7)));
 //        System.out.println(DHash.similarity(hashValues.get(6), hashValues.get(7)));
-
         List<PImage> images;
         List<int[]> hashValues = null;
         List<Integer> adjHammingDist = null;
+        List<Double> adjSimilarity = null;
         String command;
         Scanner in = new Scanner(System.in);
         boolean exit = false;
@@ -75,17 +77,20 @@ public class runApp {
                         format = formatParser(in.nextLine());
                     } while (format == null);
                     images = loadImages(path, header, format, index);
+
                     hashValues = dHashing(images);
                     adjHammingDist = adjacentHammingDist(hashValues);
+                    adjSimilarity = adjacentSimilarity(hashValues);
+
                     printHashes(hashValues);
-                    printHammingDist(adjHammingDist);
+                    printAttributes(adjHammingDist,adjSimilarity);
                     break;
                 case "print":
                     if (hashValues != null && adjHammingDist != null) {
                         printHashes(hashValues);
-                        printHammingDist(adjHammingDist);
+                        printAttributes(adjHammingDist, adjSimilarity);
                     }else{
-                        System.out.println("Load images first.");
+                        System.out.println("No images loaded yet. Load images first.");
                     }
                     break;
                 default:
@@ -107,9 +112,15 @@ public class runApp {
         }
     }
 
-    private static void printHammingDist(List<Integer> list) {
-        System.out.println("Hamming Distance of Adjacent images:");
+    private static void printAttributes(List<Integer> list, List<Double> similarity) {
+        if(list.size() ==0)
+            return;
+        System.out.println("Hamming distance of Adjacent images:");
         System.out.println(list);
+
+        System.out.println("Adjacent similarity of images:");
+        System.out.println(similarity);
+
     }
 
 
@@ -193,5 +204,16 @@ public class runApp {
 
         return list;
     }
+
+    private static List<Double> adjacentSimilarity(List<int[]> hashes) {
+        List<Double> list = new LinkedList<>();
+
+        for (int i = 0; i < hashes.size() - 1; i++) {
+            list.add(DHash.similarity(hashes.get(i), hashes.get(i + 1)));
+        }
+
+        return list;
+    }
+
 
 }

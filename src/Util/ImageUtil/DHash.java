@@ -29,7 +29,7 @@ public class DHash extends Thread {
      *
      * @return the average values of pixels of each image segment
      */
-    private float[] imageSegmentation() { //fixme: functionality untested, the unmodified dHash algorithm
+    private float[] imageSegmentation() {
         int width = image.width;
         int height = image.height;
         int segmentHeight = height / rowNum;
@@ -62,6 +62,57 @@ public class DHash extends Thread {
                         float b = blue(image.pixels[k * width + l]);
                         sum += (r + g + b) / 3;
                         cnt++;
+                    }
+                }
+                segmentAvg[i * (rowNum + 1) + j] = sum / cnt;
+            }
+        }
+        return segmentAvg;
+    }
+
+    /**
+     * This is modified dHash algorithm. This only count the number of pure black pixels and number of pure white
+     * pixels and sum it up do average. Grey pixels is not included. It makes dHash algorithm more sensitive for Images
+     * with different CT window.
+     *
+     * @return the average value of segments only count the pure black and pure white pixels.
+     */
+    private float[] imageSegmentationModified() {
+        int width = image.width;
+        int height = image.height;
+        int segmentHeight = height / rowNum;
+        int segmentWidth = width / (rowNum + 1);
+        float[] segmentAvg = new float[rowNum * (rowNum + 1)];
+
+        for (int i = 0; i < rowNum; i++) {
+            for (int j = 0; j < rowNum + 1; j++) {
+
+                int rightBound = segmentWidth * (j + 1);
+                int lowerBound = segmentHeight * (i + 1);
+                int cnt = 0;
+                float sum = 0;
+
+
+                if (i == rowNum - 1) {
+                    lowerBound = height;
+                    //As the width and height may not be fully dived, when processing the segments right most,
+                    //the right bound should be the width of the image
+                }
+                if (j == rowNum) {
+                    rightBound = width;
+                    // Same reason as above
+                }
+
+                for (int k = segmentHeight * i; k < lowerBound; k++) {  // x coordinate
+                    for (int l = segmentWidth * j; l < rightBound; l++) { // y coordinate
+                        float r = red(image.pixels[k * width + l]);
+                        float g = green(image.pixels[k * width + l]);
+                        float b = blue(image.pixels[k * width + l]);
+                        float greyScale = (r+g+b)/3 ;
+                        if(greyScale == 255 || greyScale == 0) {
+                            cnt++;
+                            sum += greyScale;
+                        }
                     }
                 }
                 segmentAvg[i * (rowNum + 1) + j] = sum / cnt;
@@ -136,7 +187,8 @@ public class DHash extends Thread {
 
 
     public void run() {
-        dHash = bitString(imageSegmentation());
+//        dHash = bitString(imageSegmentation());// using the original dHash algorithm
+        dHash = bitString(imageSegmentationModified());// using the  adapted dHash algorithm for CT images
     }
 
     public static void main(String[] args) {
