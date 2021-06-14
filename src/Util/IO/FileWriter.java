@@ -18,7 +18,6 @@ public class FileWriter {
         }catch(FileNotFoundException e){
             System.err.println("File "+ fName+ "not found");
         }
-
     }
 
 }

@@ -10,7 +10,7 @@ public class ImageReader extends PApplet {
     private List images = new LinkedList<PImage>();
     private String dataPath;
     private String header;
-    private ImgFormat format;
+    String  format;
     private int startIndex = 1;
 
     /**
@@ -18,19 +18,31 @@ public class ImageReader extends PApplet {
      * @param header the header of the image file name
      * @param format the enumeration type for image format, png, jpg, jpeg, gif, tga is supported
      */
-    public ImageReader(String dir, String header, ImgFormat format) {
+    public ImageReader(String dir, String header, String format) throws Exception {
         dataPath = dir;
         this.header = header;
         this.format = format;
+        validateFormat(format);
 
     }
 
-    public ImageReader(String dir, String header, ImgFormat format, int startIndex) {
+    public ImageReader(String dir, String header, String format, int startIndex) throws Exception {
         this(dir, header, format);
         this.startIndex = startIndex;
         readImages();
     }
 
+    private void validateFormat(String format) throws Exception {
+        format =format.toLowerCase();
+        switch(format){
+            case"png":  break;
+            case"jpg":  break;
+            case"jpeg":  break;
+            case"gif":  break;
+            case"tga":  break;
+            default: throw new Exception("ImageReader: Invalid format");
+        }
+    }
 
     /**
      * A set of images in the directory with structured filename will be loaded to the program
@@ -44,7 +56,7 @@ public class ImageReader extends PApplet {
         int cnt = startIndex;
         for (; ; ) {
             try {
-                imgName = header + prependZeroNum(cnt++, 2) + "." + format;
+                imgName = header + prependZeroNum(cnt++, 1) + "." + format;
                 PImage newImage = loadImage(dataPath + '/' + imgName);
                 if (newImage == null) {
                     break;
@@ -71,8 +83,8 @@ public class ImageReader extends PApplet {
     }
 
 
-    public static void test() {
-        ImageReader reader = new ImageReader("C:/Users/30421/Desktop/test", "test_", ImgFormat.jpg);
+    public static void test() throws Exception {
+        ImageReader reader = new ImageReader("C:/Users/30421/Desktop/test", "test_", "jpg");
         String[] appletArgs = {"ImageReader"};
         reader.main(appletArgs);
     }

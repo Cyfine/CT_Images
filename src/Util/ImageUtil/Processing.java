@@ -17,12 +17,18 @@ public class Processing extends PApplet {
 
     public void setup() {
         size(512, 512);
-        images = loadImages("D:/Confidential_Data/CT images/HEP0001", "Se2Im", ImgFormat.jpg, 30);
+        try {
+            images = loadImages("D:/Confidential_Data/CT images/HEP0001", "Se2Im", "png", 30);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void draw() {
         currentImage = images.get(imgIndex);
         image(currentImage, 0,0);
+        fill(255);
+        text("" + imgIndex, 0,10);
 
     }
 
@@ -61,7 +67,7 @@ public class Processing extends PApplet {
         }
     }
 
-    private static List<PImage> loadImages(String path, String header, ImageReader.ImgFormat format, int startIndex) {
+    private static List<PImage> loadImages(String path, String header, String format, int startIndex) throws Exception {
         ImageReader reader = new ImageReader(path, header, format, startIndex);
         List<PImage> images = reader.getImages();
         for (PImage image : images) {

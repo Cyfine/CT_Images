@@ -1,10 +1,14 @@
 package App;
 
 import java.util.*;
+
 import processing.core.*;
 import Util.IO.*;
 import Util.IO.ImageReader.ImgFormat;
+
 import static Util.IO.FileWriter.*;
+import static Util.IO.Tokenizer.*;
+
 import Util.ImageUtil.DHash;
 import Util.ImageUtil.ImgAttributeCal;
 
@@ -15,7 +19,7 @@ The path of the test file: D:/Confidential_Data/CT images/HEP0001 , header Se2Im
 public class runApp {
 
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main_0(String[] args) throws Exception {
 //        List<PImage> images = loadImages("C:/Users/30421/Desktop/test", "test_", ImgFormat.jpg, 1);
 //
 //        List<int[]> hashValues = dHashing(images);
@@ -68,11 +72,11 @@ public class runApp {
                         }
                     } while (!valid); // Keep asking user to input if the user input is invalid.
 
-                    ImgFormat format;
+                    String format;
                     do {
                         System.out.println("Input the source images format:");
                         System.out.print("Format>");
-                        format = formatParser(in.nextLine());
+                        format = in.nextLine();
                     } while (format == null);
                     images = loadImages(path, header, format, index);
                     break;
@@ -109,15 +113,100 @@ public class runApp {
                     }
 
                     break;
-                case "output" :
+                case "output":
                     if (average != null && standardDeviation != null)
-                    outputAttribCSV("attrib.csv",average,standardDeviation);
+                        outputAttribCSV("attrib.csv", average, standardDeviation);
 
                 default:
                     System.out.println("Invalid command");
             }
 
         }
+    }
+
+    public static void main(String[] args) {
+        new runApp().start();
+    }
+
+    public void start() {
+        Scanner in = new Scanner(System.in);
+        boolean exit = false;
+
+        while (!exit) {
+
+            try {
+                String[] cmdArgs = getUserInput(in);
+                switch (cmdArgs[0].toLowerCase()) {
+                    case "load":
+                        load(cmdArgs);
+                        break;
+                    case "help":
+                        help(cmdArgs);
+                        break;
+                    case "exit":
+                        exit = true;
+                        break;
+
+                    default:
+                        System.out.println("Unknown command.");
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+//                e.printStackTrace();
+            }
+
+
+        }
+
+    }
+
+    private String[] getUserInput(Scanner in, String header) {
+        String input;
+        String[] result;
+        for (; ; ) {
+            System.out.print(header);
+            input = in.nextLine();
+            result = tokenize(input);
+            if (result.length != 0) {
+                return result;
+            }
+        }
+    }
+
+    private String[] getUserInput(Scanner in) {
+        return getUserInput(in, ">");
+    }
+
+    //--------------------------commands----------------------------
+    private void load(String[] cmdArgs) throws Exception {
+        if (cmdArgs.length != 5) {
+            throw new Exception("Invalid number of arguments");
+        }
+        try {
+            loadImages(cmdArgs[1], cmdArgs[2], cmdArgs[4], Integer.parseInt(cmdArgs[3]));
+        } catch (NumberFormatException e) {
+            throw new Exception("Invalid number format");
+        }
+    }
+
+    private void help(String[] cmdArgs) {
+        if (cmdArgs.length < 2) {
+            System.out.println("Available command: load, help");
+            return;
+        }
+        switch (cmdArgs[1]) {
+            case "load":
+                System.out.println("Load CT volume from path");
+                System.out.println("Need the header name and index of first image in a CT volume.");
+                System.out.println("Syntax: load [path] [header] [start index] [format]");
+                break;
+            case "exit":
+                System.out.println("Exit program");
+            default:
+                System.out.println("Unknown command.");
+                System.out.println("Available command: load, help");
+        }
+
     }
 
 
@@ -175,7 +264,7 @@ public class runApp {
         }
     }
 
-    private static List<PImage> loadImages(String path, String header, ImageReader.ImgFormat format, int startIndex) {
+    protected static List<PImage> loadImages(String path, String header, String format, int startIndex) throws Exception {
         ImageReader reader = new ImageReader(path, header, format, startIndex);
         List<PImage> images = reader.getImages();
         for (PImage image : images) {
@@ -214,6 +303,8 @@ public class runApp {
     }
 
     /**
+     * calculate the average and variance of each images with multi-threading
+     *
      * @return List[0] average, List[1] standard deviation
      */
     public static List<Double>[] calAttribute(List<PImage> images) throws InterruptedException {
@@ -262,8 +353,6 @@ public class runApp {
 
         return list;
     }
-
-
 
 
 }
