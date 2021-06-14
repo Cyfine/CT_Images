@@ -109,13 +109,12 @@ public class DHash extends Thread {
                         float g = green(image.pixels[k * width + l]);
                         float b = blue(image.pixels[k * width + l]);
                         float greyScale = (r + g + b) / 3;
-                        if (greyScale == 255 || greyScale == 0) {
+                        if (greyScale == 255 ) {
                             cnt++;
-                            sum += greyScale;
                         }
                     }
                 }
-                segmentAvg[i * (rowNum + 1) + j] = sum / cnt;
+                segmentAvg[i * (rowNum + 1) + j] = cnt;
             }
         }
         return segmentAvg;
@@ -227,7 +226,7 @@ public class DHash extends Thread {
         return (rgb >> 8) & 0xFF;
     }
 
-    /**
+    /**0
      * @param rgb composite RGB value
      * @return decomposed RGB blue value
      */
@@ -237,7 +236,7 @@ public class DHash extends Thread {
 
 
     public void run() {
-        dHash = bitString(imageSegmentation());// using the original dHash algorithm
-//        dHash = bitString(imageSegmentationModified_1());// using the  adapted dHash algorithm for CT images
+//        dHash = bitString(imageSegmentation());// using the original dHash algorithm
+        dHash = bitString(imageSegmentationModified());// using the  adapted dHash algorithm for CT images
     }
 }

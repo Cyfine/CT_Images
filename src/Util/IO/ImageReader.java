@@ -25,7 +25,7 @@ public class ImageReader extends PApplet {
 
     }
 
-    public ImageReader(String dir, String header , ImgFormat format, int startIndex){
+    public ImageReader(String dir, String header, ImgFormat format, int startIndex) {
         this(dir, header, format);
         this.startIndex = startIndex;
         readImages();
@@ -44,7 +44,7 @@ public class ImageReader extends PApplet {
         int cnt = startIndex;
         for (; ; ) {
             try {
-                imgName = header + cnt++ + "." + format;
+                imgName = header + prependZeroNum(cnt++, 2) + "." + format;
                 PImage newImage = loadImage(dataPath + '/' + imgName);
                 if (newImage == null) {
                     break;
@@ -54,6 +54,20 @@ public class ImageReader extends PApplet {
                 break;
             }
         }
+    }
+
+    public static String prependZeroNum(int num, int strLength) {
+        String str = "" +num;
+        int strLen = str.length();
+        StringBuffer sb = null;
+        while (strLen < strLength) {
+            sb = new StringBuffer();
+            sb.append("0").append(str);
+            // sb.append(str).append("0");
+            str = sb.toString();
+            strLen = str.length();
+        }
+        return str;
     }
 
 

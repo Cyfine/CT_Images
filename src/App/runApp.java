@@ -1,14 +1,12 @@
 package App;
 
 import java.util.*;
-
 import processing.core.*;
-
 import Util.IO.*;
-import Util.ImageUtil.DHash;
 import Util.IO.ImageReader.ImgFormat;
-
-import java.util.Scanner;
+import static Util.IO.FileWriter.*;
+import Util.ImageUtil.DHash;
+import Util.ImageUtil.ImgAttributeCal;
 
 /*
 The path of the test file: D:/Confidential_Data/CT images/HEP0001 , header Se2Im, start Index 30
@@ -23,22 +21,22 @@ public class runApp {
 //        List<int[]> hashValues = dHashing(images);
 //        System.out.println(DHash.hammingDistance(hashValues.get(6), hashValues.get(7)));
 //        System.out.println(DHash.similarity(hashValues.get(6), hashValues.get(7)));
-        List<PImage> images;
+        List<PImage> images = null;
         List<int[]> hashValues = null;
         List<Integer> adjHammingDist = null;
         List<Double> adjSimilarity = null;
+        List<Double> standardDeviation = null;
+        List<Double> average = null;
         String command;
         Scanner in = new Scanner(System.in);
         boolean exit = false;
         while (!exit) {
 
-            boolean validCmd = true;
+            boolean validCmd;
             do {
                 System.out.print("Ready>");
                 command = in.nextLine().trim().toLowerCase();
-                if (command.length() == 0)
-                    validCmd = false;
-                else validCmd = true;
+                validCmd = command.length() != 0;
             } while (!validCmd);
             switch (command) {
                 case "exit":
@@ -77,22 +75,44 @@ public class runApp {
                         format = formatParser(in.nextLine());
                     } while (format == null);
                     images = loadImages(path, header, format, index);
-
-                    hashValues = dHashing(images);
-                    adjHammingDist = adjacentHammingDist(hashValues);
-                    adjSimilarity = adjacentSimilarity(hashValues);
-
-                    printHashes(hashValues);
-                    printAttributes(adjHammingDist,adjSimilarity);
                     break;
-                case "print":
-                    if (hashValues != null && adjHammingDist != null) {
+                case "hash":
+                    if (images != null) {
+                        hashValues = dHashing(images);
+                        adjHammingDist = adjacentHammingDist(hashValues);
+                        adjSimilarity = adjacentSimilarity(hashValues);
+
                         printHashes(hashValues);
                         printAttributes(adjHammingDist, adjSimilarity);
-                    }else{
+                    } else {
+                        System.out.println("No images loaded, load images first.");
+                    }
+                    break;
+
+                case "print":
+                    if (hashValues != null) {
+                        printHashes(hashValues);
+                        printAttributes(adjHammingDist, adjSimilarity);
+                    } else {
                         System.out.println("No images loaded yet. Load images first.");
                     }
                     break;
+                case "attrib":
+                    if (images != null) {
+                        List[] result = calAttribute(images);
+                        standardDeviation = result[1];
+                        average = result[0];
+                        System.out.println("Average of images: " + average);
+                        System.out.println("Standard deviation of images: " + standardDeviation);
+                    } else {
+                        System.out.println("No images loaded yet. Load images first.");
+                    }
+
+                    break;
+                case "output" :
+                    if (average != null && standardDeviation != null)
+                    outputAttribCSV("attrib.csv",average,standardDeviation);
+
                 default:
                     System.out.println("Invalid command");
             }
@@ -113,7 +133,7 @@ public class runApp {
     }
 
     private static void printAttributes(List<Integer> list, List<Double> similarity) {
-        if(list.size() ==0)
+        if (list.size() == 0)
             return;
         System.out.println("Hamming distance of Adjacent images:");
         System.out.println(list);
@@ -170,13 +190,12 @@ public class runApp {
      *
      * @param images the images set used to calculate dHash values each
      * @return the dHash values of each images in a LinkedList
-     * @throws InterruptedException
      */
     private static List<int[]> dHashing(List<PImage> images) throws InterruptedException {
         DHash[] threads = new DHash[images.size()];
         List<int[]> dHashValues = new LinkedList<>();
         for (int i = 0; i < images.size(); i++) {
-            threads[i] = new DHash(images.get(i), 64);
+            threads[i] = new DHash(images.get(i), 64); //modify bitLength here
         }
 
         for (int i = 0; i < images.size(); i++) {
@@ -192,6 +211,35 @@ public class runApp {
         }
 
         return dHashValues;
+    }
+
+    /**
+     * @return List[0] average, List[1] standard deviation
+     */
+    public static List<Double>[] calAttribute(List<PImage> images) throws InterruptedException {
+        ImgAttributeCal[] threads = new ImgAttributeCal[images.size()];
+        LinkedList<Double> standardDeviation = new LinkedList<>();
+        LinkedList<Double> average = new LinkedList<>();
+
+        for (int i = 0; i < images.size(); i++) {
+            threads[i] = new ImgAttributeCal(images.get(i));
+        }
+
+        for (int i = 0; i < images.size(); i++) {
+            threads[i].start();
+        }
+
+        for (int i = 0; i < images.size(); i++) {
+            threads[i].join();
+        }
+
+        for (int i = 0; i < images.size(); i++) {
+            standardDeviation.add(threads[i].standDeviation);
+            average.add(threads[i].average);
+        }
+
+        return new LinkedList[]{average, standardDeviation};
+
     }
 
 
@@ -214,6 +262,8 @@ public class runApp {
 
         return list;
     }
+
+
 
 
 }
