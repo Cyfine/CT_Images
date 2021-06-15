@@ -19,7 +19,7 @@ load D:/Confidential_Data/CT_images/HEP0001 Se2Im 30 jpg
 public class runApp {
 
 
-    public static void main_0(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 //        List<PImage> images = loadImages("C:/Users/30421/Desktop/test", "test_", ImgFormat.jpg, 1);
 //
 //        List<int[]> hashValues = dHashing(images);
@@ -116,7 +116,12 @@ public class runApp {
                 case "output":
                     if (average != null && standardDeviation != null)
                         outputAttribCSV("attrib.csv", average, standardDeviation);
-
+                    break;
+                case "analyze" :
+                    Analyzer thread = new Analyzer(images);
+                    thread.start();
+                    thread.join();
+                    break;
                 default:
                     System.out.println("Invalid command");
             }
@@ -124,7 +129,7 @@ public class runApp {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main_0(String[] args) {
         new runApp().start();
     }
 
@@ -190,7 +195,7 @@ public class runApp {
 
     private void help(String[] cmdArgs) {
         if (cmdArgs.length < 2) {
-            System.out.println("Available command: load, help");
+            System.out.println("Available command: load, help, exit");
             return;
         }
         switch (cmdArgs[1]) {
@@ -201,9 +206,10 @@ public class runApp {
                 break;
             case "exit":
                 System.out.println("Exit program");
+                break;
             default:
-                System.out.println("Unknown command.");
-                System.out.println("Available command: load, help");
+                System.out.println("Unknown command");
+                System.out.println("Available command: load, help, exit");
         }
 
     }

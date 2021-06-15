@@ -54,17 +54,25 @@ public class ImageReader extends PApplet {
         images = new LinkedList<PImage>();
         String imgName;
         int cnt = startIndex;
+        boolean init = true;
+        int minNumLength = 1;
+
         for (; ; ) {
-            try {
-                imgName = header + prependZeroNum(cnt++, 1) + "." + format;
+
+                imgName = header + prependZeroNum(cnt++, minNumLength) + "." + format;
                 PImage newImage = loadImage(dataPath + '/' + imgName);
                 if (newImage == null) {
-                    break;
+                    if(init){
+                        minNumLength = 2;
+                        continue;
+                    }else{
+                        break;
+                    }
+
                 }
                 images.add(newImage);
-            } catch (Exception e) {
-                break;
-            }
+                init = false;
+
         }
     }
 
