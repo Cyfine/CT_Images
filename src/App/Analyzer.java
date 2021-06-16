@@ -1,3 +1,18 @@
+/*
+ * Readme:
+ * The analyzer can calculate the attributes(pixel average and pixel standard derivation) of images in a CT volume
+ * For each CT volume loaded to the program, an Analyzer instance is used to analyze and find
+ * the images that have mutant CT window (Each analyzer is running as a thread).
+ * The result will be written back to the class variables.
+ *
+ * How it works:
+ * After calculating the average and standard deviation of the images,
+ * the standard deviation and average of "image pixel average" will be calculated
+ * and then construct a confidence interval which is [avg - sd, avg + sd], the
+ * images that have average (this average refers to average of image pixels) out of the confidence interval
+ * will be selected. Similarly, we can also construct confidence interval using standard deviation(refers to pixels)
+ * of the images. This program make use of both "pixel standard deviation" and "pixel average"
+ */
 package App;
 
 
@@ -10,13 +25,13 @@ import static App.runApp.*;
 
 public class Analyzer extends Thread {
     private List<PImage> images;
-    private List[] attrib;
-    private double imgAvg_avg;
-    private double imgAvg_sd;
+    private List[] attrib; // [0] for average, [1] for standard deviation
+    private double imgAvg_avg; // the average of "image pixel averages"
+    private double imgAvg_sd;  // the average of "image pixel averages"
     private double imgSD_avg;
     private double imgSD_sd;
     private List<Integer> avg_mutantCluster; // the index in attrib[0]
-    private List<Integer> sd_mutantCluster; // the index in attrib[1]
+    private List<Integer> sd_mutantCluster;  // the index in attrib[1]
 
     public List<List<List<Integer>>> clusters;
 
@@ -129,9 +144,14 @@ public class Analyzer extends Thread {
 
         for (int i = 0; i < avgCluster.size(); i++) {
             List<Integer> clusterIdx = avgCluster.get(i);
-            if (clusterIdx.size() == 1) {
 
+            //if the cluster that out of the confidence interval has only one element, directly add to
+            // the result array
+            if (clusterIdx.size() == 1) {
+                avg_mutantCluster.add(clusterIdx.get(0));
+                continue;
             }
+
             List<Double> cluster = parIdxToVal(clusterIdx, true); // calculate the standard deviation and average within the cluster
             double avg = average(cluster);
             double sd = sd_pop(cluster, avg);

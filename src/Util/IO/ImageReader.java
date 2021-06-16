@@ -64,6 +64,8 @@ public class ImageReader extends PApplet {
                 if (newImage == null) {
                     if(init){
                         minNumLength = 2;
+                        cnt--;
+                        init = false;
                         continue;
                     }else{
                         break;

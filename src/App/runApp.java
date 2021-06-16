@@ -11,6 +11,7 @@ import static Util.IO.Tokenizer.*;
 
 import Util.ImageUtil.DHash;
 import Util.ImageUtil.ImgAttributeCal;
+import static Util.ImageUtil.Processing.*;
 
 /*
 The path of the test file: D:/Confidential_Data/CT images/HEP0001 , header Se2Im, start Index 30
@@ -122,6 +123,8 @@ public class runApp {
                     thread.start();
                     thread.join();
                     break;
+                case "display" :
+                    displayImage(images);
                 default:
                     System.out.println("Invalid command");
             }
@@ -129,7 +132,7 @@ public class runApp {
         }
     }
 
-    public static void main_0(String[] args) {
+    public static void main_1(String[] args) {
         new runApp().start();
     }
 
