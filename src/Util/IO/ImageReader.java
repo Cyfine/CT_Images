@@ -56,6 +56,7 @@ public class ImageReader extends PApplet {
         int cnt = startIndex;
         boolean init = true;
         int minNumLength = 1;
+        System.err.close();
 
         for (; ; ) {
 
@@ -68,6 +69,10 @@ public class ImageReader extends PApplet {
                         init = false;
                         continue;
                     }else{
+                        if(images.size() == 0){
+                            System.out.println("Load failed, check arguments correctness.");
+                        }
+                        System.out.println("Load complete. " + images.size() + " images loaded.");
                         break;
                     }
 

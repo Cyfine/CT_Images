@@ -30,11 +30,12 @@ public class Analyzer extends Thread {
     private double imgAvg_sd;  // the average of "image pixel averages"
     private double imgSD_avg;
     private double imgSD_sd;
-    private List<Integer> avg_mutantCluster; // the index in attrib[0]
-    private List<Integer> sd_mutantCluster;  // the index in attrib[1]
+    private List<List<Integer>> avg_mutantCluster; // the index in attrib[0]
+    private List<List<Integer>> sd_mutantCluster;  // the index in attrib[1]
 
     public List<List<List<Integer>>> clusters;
-
+    // clusters.get(0) is the mutate clusters selected using average
+    // clusters.get(1) is the mutate clusters selected using standard deviation.
 
     public Analyzer(List<PImage> images) throws InterruptedException {
         this.images = images;
@@ -101,6 +102,7 @@ public class Analyzer extends Thread {
 
     public void run() {
         mutateClusterSelect();
+        clusterAnalysis();
         printAttributes();
 //        FileWriter.outputAttribCSV("HEP00034_attrib.csv", attrib[0], attrib[1]);
     }
@@ -112,6 +114,10 @@ public class Analyzer extends Thread {
         System.out.println("Average of images standard deviation:" + imgSD_avg);
         System.out.println("Standard deviation of images standard deviation:" + imgSD_sd);
         System.out.println("Cluster (SD)" + clusters.get(1));
+        System.out.println("Processed cluster:" );
+        for(List<Integer> list : avg_mutantCluster){
+            System.out.println(list);
+        }
 
     }
 
@@ -131,6 +137,14 @@ public class Analyzer extends Thread {
         return Math.sqrt(squareSum / list.size());
     }
 
+    private static double sd_sam(List<Double> list, double average) {
+        double squareSum = 0;
+        for (Double num : list) {
+            squareSum += (num - average) * (num - average);
+        }
+        return Math.sqrt(squareSum /( list.size()-1));
+    }
+
 
     //execute after mutantClusterSelect()
     // write mutant clusters to class variable avg_mutantCluster and sd_mutantCluster
@@ -148,7 +162,7 @@ public class Analyzer extends Thread {
             //if the cluster that out of the confidence interval has only one element, directly add to
             // the result array
             if (clusterIdx.size() == 1) {
-                avg_mutantCluster.add(clusterIdx.get(0));
+                avg_mutantCluster.add(clusterIdx); // add to result
                 continue;
             }
 
@@ -156,17 +170,35 @@ public class Analyzer extends Thread {
             double avg = average(cluster);
             double sd = sd_pop(cluster, avg);
 
-            for (int j = 0; j < clusterIdx.size(); j++) {
-                int index = clusterIdx.get(j);
-                attrib[0].get(index);
+            int clusterHeadIdxPrev = clusterIdx.get(0) - 1;
+            int clusterTailIdxFollow = clusterIdx.get(1) + 1;
+            boolean headMutate = false;
+            boolean tailMutate = false;
 
+            if (clusterHeadIdxPrev > 0 && (Double) attrib[0].get(clusterHeadIdxPrev) < cluster.get(0) - sd) {
+                headMutate = true;
             }
+
+            if (clusterTailIdxFollow < attrib[0].size() && (Double) attrib[0].get(clusterTailIdxFollow) > cluster.get(cluster.size() - 1) + sd) {
+                tailMutate = true;
+            }
+
+            if (headMutate || tailMutate) {
+                avg_mutantCluster.add(clusterIdx); // add to result (cluster has multi values)
+            }
+
+
+//            for (int j = 0; j < clusterIdx.size(); j++) {
+//                int index = clusterIdx.get(j);
+//                attrib[0].get(index);
+//
+//            }
         }
-
-        for (int i = 0; i < sdCluster.size(); i++) {
+/*
+        for (int i = 0; i < sdCluster.size(); i++) {//fixme: implement method
 
         }
-
+*/
     }
 
     /**

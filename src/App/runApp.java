@@ -11,6 +11,7 @@ import static Util.IO.Tokenizer.*;
 
 import Util.ImageUtil.DHash;
 import Util.ImageUtil.ImgAttributeCal;
+
 import static Util.ImageUtil.Processing.*;
 
 /*
@@ -18,9 +19,9 @@ The path of the test file: D:/Confidential_Data/CT images/HEP0001 , header Se2Im
 load D:/Confidential_Data/CT_images/HEP0001 Se2Im 30 jpg
  */
 public class runApp {
+    List<PImage> images = null;
 
-
-    public static void main(String[] args) throws Exception {
+    public static void main_0(String[] args) throws Exception {
 //        List<PImage> images = loadImages("C:/Users/30421/Desktop/test", "test_", ImgFormat.jpg, 1);
 //
 //        List<int[]> hashValues = dHashing(images);
@@ -118,12 +119,12 @@ public class runApp {
                     if (average != null && standardDeviation != null)
                         outputAttribCSV("attrib.csv", average, standardDeviation);
                     break;
-                case "analyze" :
+                case "analyze":
                     Analyzer thread = new Analyzer(images);
                     thread.start();
                     thread.join();
                     break;
-                case "display" :
+                case "display":
                     displayImage(images);
                 default:
                     System.out.println("Invalid command");
@@ -132,15 +133,15 @@ public class runApp {
         }
     }
 
-    public static void main_1(String[] args) {
+    public static void main(String[] args) {
         new runApp().start();
     }
 
     public void start() {
         Scanner in = new Scanner(System.in);
-        boolean exit = false;
 
-        while (!exit) {
+
+        while (true) {
 
             try {
                 String[] cmdArgs = getUserInput(in);
@@ -152,9 +153,18 @@ public class runApp {
                         help(cmdArgs);
                         break;
                     case "exit":
-                        exit = true;
+                        System.out.println("Exit Program");
+                        System.exit(0);
                         break;
-
+                    case "show":
+                        show();
+                        break;
+                    case "analyze":
+                        analyze();
+                        break;
+                    case "test":
+                        main_0(new String[]{"main"});
+                        break;
                     default:
                         System.out.println("Unknown command.");
                 }
@@ -166,6 +176,7 @@ public class runApp {
         }
 
     }
+
 
     private String[] getUserInput(Scanner in, String header) {
         String input;
@@ -190,15 +201,30 @@ public class runApp {
             throw new Exception("Invalid number of arguments");
         }
         try {
-            loadImages(cmdArgs[1], cmdArgs[2], cmdArgs[4], Integer.parseInt(cmdArgs[3]));
+            images = loadImages(cmdArgs[1], cmdArgs[2], cmdArgs[4], Integer.parseInt(cmdArgs[3]));
         } catch (NumberFormatException e) {
             throw new Exception("Invalid number format");
         }
     }
 
+    private void show() throws Exception {
+        if (images != null) {
+            displayImage(images);
+        } else {
+            throw new Exception("No images loaded yet.");
+        }
+    }
+
+    private void analyze() throws InterruptedException {
+        Analyzer thread = new Analyzer(images);
+        thread.start();
+        thread.join();
+        return;
+    }
+
     private void help(String[] cmdArgs) {
         if (cmdArgs.length < 2) {
-            System.out.println("Available command: load, help, exit");
+            System.out.println("Available command: load, show, help, exit");
             return;
         }
         switch (cmdArgs[1]) {
@@ -210,13 +236,15 @@ public class runApp {
             case "exit":
                 System.out.println("Exit program");
                 break;
+            case "show":
+                System.out.println("Pop up a window and show the images loaded");
+                break;
             default:
                 System.out.println("Unknown command");
-                System.out.println("Available command: load, help, exit");
+                System.out.println("Available command: load, show, help, exit");
         }
 
     }
-
 
     private static void printHashes(List<int[]> list) {
         if (list.size() == 0)
