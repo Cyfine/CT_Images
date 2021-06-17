@@ -71,8 +71,8 @@ public class Analyzer extends Thread {
      * [imgSD_avg ± imgSD_sd]
      */
     public void mutateClusterSelect() {
-        List<Double> imgAvg = attrib[0];
-        List<Double> imgSD = attrib[1];
+        List<Double> imgAvg = (List<Double>)attrib[0];
+        List<Double> imgSD = (List<Double>)attrib[1];
 
         List<List<Integer>> avgOverRange = new LinkedList<>();
         List<List<Integer>> sdOverRange = new LinkedList<>();
@@ -145,9 +145,7 @@ public class Analyzer extends Thread {
         List<List<Integer>> sdCluster = clusters.get(1);
 
 
-        for (int i = 0; i < avgCluster.size(); i++) {
-            List<Integer> clusterIdx = avgCluster.get(i);
-
+        for (List<Integer> clusterIdx : avgCluster) {
             //if the cluster that out of the confidence interval has only one element, directly add to
             // the result array
             if (clusterIdx.size() == 1) {
@@ -180,9 +178,7 @@ public class Analyzer extends Thread {
 
 
         //Filter selected cluster
-        for (int i = 0; i < sdCluster.size(); i++) {
-            List<Integer> clusterIdx = sdCluster.get(i);
-
+        for (List<Integer> clusterIdx : sdCluster) {
             //if the cluster that out of the confidence interval has only one element, directly add to
             // the result array
             if (clusterIdx.size() == 1) {
