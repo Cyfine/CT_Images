@@ -10,7 +10,7 @@ public class ImageReader extends PApplet {
     private List images = new LinkedList<PImage>();
     private String dataPath;
     private String header;
-    String  format;
+    String format;
     private int startIndex = 1;
 
     /**
@@ -33,14 +33,20 @@ public class ImageReader extends PApplet {
     }
 
     private void validateFormat(String format) throws Exception {
-        format =format.toLowerCase();
-        switch(format){
-            case"png":  break;
-            case"jpg":  break;
-            case"jpeg":  break;
-            case"gif":  break;
-            case"tga":  break;
-            default: throw new Exception("ImageReader: Invalid format");
+        format = format.toLowerCase();
+        switch (format) {
+            case "png":
+                break;
+            case "jpg":
+                break;
+            case "jpeg":
+                break;
+            case "gif":
+                break;
+            case "tga":
+                break;
+            default:
+                throw new Exception("ImageReader: Invalid format");
         }
     }
 
@@ -60,31 +66,32 @@ public class ImageReader extends PApplet {
 
         for (; ; ) {
 
-                imgName = header + prependZeroNum(cnt++, minNumLength) + "." + format;
-                PImage newImage = loadImage(dataPath + '/' + imgName);
-                if (newImage == null) {
-                    if(init){
-                        minNumLength = 2;
-                        cnt--;
-                        init = false;
-                        continue;
-                    }else{
-                        if(images.size() == 0){
-                            System.out.println("Load failed, check arguments correctness.");
-                        }
-                        System.out.println("Load complete. " + images.size() + " images loaded.");
-                        break;
+            imgName = header + prependZeroNum(cnt++, minNumLength) + "." + format;
+            PImage newImage = loadImage(dataPath + '/' + imgName);
+            if (newImage == null) {
+                if (init) {
+                    minNumLength = 2;
+                    cnt--;
+                    init = false;
+                    continue;
+                } else {
+                    if (images.size() == 0) {
+                        System.out.println("Load failed, check arguments correctness.");
+                    } else {
+                        System.out.println("Load completed. " + images.size() + " images loaded.");
                     }
-
+                    break;
                 }
-                images.add(newImage);
-                init = false;
+
+            }
+            images.add(newImage);
+            init = false;
 
         }
     }
 
     public static String prependZeroNum(int num, int strLength) {
-        String str = "" +num;
+        String str = "" + num;
         int strLen = str.length();
         StringBuffer sb = null;
         while (strLen < strLength) {

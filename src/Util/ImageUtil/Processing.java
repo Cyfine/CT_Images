@@ -62,24 +62,25 @@ public class Processing extends PApplet {
         image(currentImage, 0, 0);
         fill(255);
         text("" + imgIndex, 0, 10);
-
+        noLoop();
     }
 
     public void keyPressed() {
+        loop();
         if (keyCode == LEFT && imgIndex > 0) {
             imgIndex--;
         }
         if (keyCode == RIGHT && imgIndex < images.size() - 1) {
             imgIndex++;
         }
-        if (keyCode == UP) {
-            for (PImage img : images) {
-                polarize(img);
-            }
-        }
-        if (keyCode == DOWN) {
-            setup();
-        }
+//        if (keyCode == UP) {
+//            for (PImage img : images) {
+//                polarize(img);
+//            }
+//        }
+//        if (keyCode == DOWN) {
+//            setup();
+//        }
 
 
     }

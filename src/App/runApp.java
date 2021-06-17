@@ -162,6 +162,9 @@ public class runApp {
                     case "analyze":
                         analyze();
                         break;
+                    case "dHash" :
+
+                        break;
                     case "test":
                         main_0(new String[]{"main"});
                         break;

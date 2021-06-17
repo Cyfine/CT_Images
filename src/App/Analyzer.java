@@ -114,8 +114,8 @@ public class Analyzer extends Thread {
         System.out.println("Average of images standard deviation:" + imgSD_avg);
         System.out.println("Standard deviation of images standard deviation:" + imgSD_sd);
         System.out.println("Cluster (SD)" + clusters.get(1));
-        System.out.println("Processed cluster:" );
-        for(List<Integer> list : avg_mutantCluster){
+        System.out.println("Processed cluster:");
+        for (List<Integer> list : avg_mutantCluster) {
             System.out.println(list);
         }
 
@@ -142,7 +142,7 @@ public class Analyzer extends Thread {
         for (Double num : list) {
             squareSum += (num - average) * (num - average);
         }
-        return Math.sqrt(squareSum /( list.size()-1));
+        return Math.sqrt(squareSum / (list.size() - 1));
     }
 
 
@@ -187,18 +187,44 @@ public class Analyzer extends Thread {
                 avg_mutantCluster.add(clusterIdx); // add to result (cluster has multi values)
             }
 
-
-//            for (int j = 0; j < clusterIdx.size(); j++) {
-//                int index = clusterIdx.get(j);
-//                attrib[0].get(index);
-//
-//            }
         }
-/*
-        for (int i = 0; i < sdCluster.size(); i++) {//fixme: implement method
+
+
+        //Filter selected cluster
+        for (int i = 0; i < sdCluster.size(); i++) {
+            List<Integer> clusterIdx = avgCluster.get(i);
+
+            //if the cluster that out of the confidence interval has only one element, directly add to
+            // the result array
+            if (clusterIdx.size() == 1) {
+                sd_mutantCluster.add(clusterIdx); // add to result
+                continue;
+            }
+
+            List<Double> cluster = parIdxToVal(clusterIdx, false); // calculate the standard deviation and average within the cluster
+            double avg = average(cluster);
+            double sd = sd_pop(cluster, avg);
+
+            int clusterHeadIdxPrev = clusterIdx.get(0) - 1;
+            int clusterTailIdxFollow = clusterIdx.get(1) + 1;
+            boolean headMutate = false;
+            boolean tailMutate = false;
+
+            if (clusterHeadIdxPrev > 0 && (Double) attrib[1].get(clusterHeadIdxPrev) < cluster.get(0) - sd) {
+                headMutate = true;
+            }
+
+            if (clusterTailIdxFollow < attrib[1].size() && (Double) attrib[1].get(clusterTailIdxFollow) > cluster.get(cluster.size() - 1) + sd) {
+                tailMutate = true;
+            }
+
+            if (headMutate || tailMutate) {
+                sd_mutantCluster.add(clusterIdx); // add to result (cluster has multi values)
+            }
 
         }
-*/
+
+
     }
 
     /**
