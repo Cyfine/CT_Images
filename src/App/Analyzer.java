@@ -101,6 +101,7 @@ public class Analyzer extends Thread {
     }
 
     public void run() {
+        System.out.println("running");
         mutateClusterSelect();
         clusterAnalysis();
         printAttributes();
@@ -114,11 +115,14 @@ public class Analyzer extends Thread {
         System.out.println("Average of images standard deviation:" + imgSD_avg);
         System.out.println("Standard deviation of images standard deviation:" + imgSD_sd);
         System.out.println("Cluster (SD)" + clusters.get(1));
-        System.out.println("Processed cluster:");
+        System.out.println("Processed cluster (avg):");
         for (List<Integer> list : avg_mutantCluster) {
             System.out.println(list);
         }
-
+//        System.out.println("Processed cluster(sd): ");
+//        for (List<Integer> list : sd_mutantCluster) {
+//            System.out.println(list);
+//        }
     }
 
     private static double average(List<Double> list) {
@@ -168,7 +172,7 @@ public class Analyzer extends Thread {
 
             List<Double> cluster = parIdxToVal(clusterIdx, true); // calculate the standard deviation and average within the cluster
             double avg = average(cluster);
-            double sd = sd_pop(cluster, avg);
+            double sd = sd_sam(cluster, avg);
 
             int clusterHeadIdxPrev = clusterIdx.get(0) - 1;
             int clusterTailIdxFollow = clusterIdx.get(1) + 1;
@@ -203,7 +207,7 @@ public class Analyzer extends Thread {
 
             List<Double> cluster = parIdxToVal(clusterIdx, false); // calculate the standard deviation and average within the cluster
             double avg = average(cluster);
-            double sd = sd_pop(cluster, avg);
+            double sd = sd_sam(cluster, avg);
 
             int clusterHeadIdxPrev = clusterIdx.get(0) - 1;
             int clusterTailIdxFollow = clusterIdx.get(1) + 1;
