@@ -21,6 +21,7 @@ load D:/Confidential_Data/CT_images/HEP0001 Se2Im 30 jpg
 public class runApp {
     List<PImage> images = null;
 
+
     public static void main_0(String[] args) throws Exception {
 //        List<PImage> images = loadImages("C:/Users/30421/Desktop/test", "test_", ImgFormat.jpg, 1);
 //
@@ -139,8 +140,6 @@ public class runApp {
 
     public void start() {
         Scanner in = new Scanner(System.in);
-
-
         while (true) {
 
             try {
@@ -162,20 +161,30 @@ public class runApp {
                     case "analyze":
                         analyze();
                         break;
-                    case "dHash" :
+                    case "dHash":
 
                         break;
                     case "test":
                         main_0(new String[]{"main"});
                         break;
+                    case "output" :
+                        output(cmdArgs);
+                        break;
                     default:
                         System.out.println("Unknown command.");
                 }
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+               System.out.println(e.getMessage());
             }
 
 
+        }
+
+    }
+
+    private void output(String[] cmdArgs) {
+        if(cmdArgs.length  != 2){
+            System.out.println("Invalid number of arguments");
         }
 
     }

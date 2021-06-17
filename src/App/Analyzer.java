@@ -2,7 +2,7 @@
  * Readme:
  * The analyzer can calculate the attributes(pixel average and pixel standard derivation) of images in a CT volume
  * For each CT volume loaded to the program, an Analyzer instance is used to analyze and find
- * the images that have mutant CT window (Each analyzer is running as a thread).
+ * the images that have mutate CT window (Each analyzer is running as a thread).
  * The result will be written back to the class variables.
  *
  * How it works:
@@ -16,7 +16,6 @@
 package App;
 
 
-import Util.IO.FileWriter;
 import processing.core.*;
 
 import java.util.*;
@@ -24,27 +23,53 @@ import java.util.*;
 import static App.runApp.*;
 
 public class Analyzer extends Thread {
-    private List<PImage> images;
+    private final List<PImage> images;
     private List[] attrib; // [0] for average, [1] for standard deviation
     private double imgAvg_avg; // the average of "image pixel averages"
     private double imgAvg_sd;  // the average of "image pixel averages"
     private double imgSD_avg;
     private double imgSD_sd;
-    private List<List<Integer>> avg_mutantCluster; // the index in attrib[0]
-    private List<List<Integer>> sd_mutantCluster;  // the index in attrib[1]
+    private List<List<Integer>> avg_mutateCluster; // the index in attrib[0]
+    private List<List<Integer>> sd_mutateCluster;  // the index in attrib[1]
 
     public List<List<List<Integer>>> clusters;
     // clusters.get(0) is the mutate clusters selected using average
     // clusters.get(1) is the mutate clusters selected using standard deviation.
 
+    //========================= Constructor =============================
+
+    /**
+     * Constructor
+     *
+     * Each analyzer instance contains a single CT volume
+     *
+     * @param images images in the CT volume
+     */
     public Analyzer(List<PImage> images) throws InterruptedException {
         this.images = images;
-        avg_mutantCluster = new LinkedList<>();
+        avg_mutateCluster = new LinkedList<>();
+        sd_mutateCluster = new LinkedList<>();
         attrib = calAttribute(images);
     }
 
+    public void run() {
+        mutateClusterSelect();
+        clusterAnalysis();
+        printAttributes();
+//        FileWriter.outputAttribCSV("HEP00034_attrib.csv", attrib[0], attrib[1]);
+    }
+
+
+    //======================== core methods =============================
     // write back mutate cluster into clusters clusters.get(0) is cluster selected using average
     // clusters.get(1) is cluster selected using standard deviation.
+    //*
+
+    /**
+     * Select the images that is out of the confidence interval
+     * [imgAvg_avg ± img_Avg_sd]
+     * [imgSD_avg ± imgSD_sd]
+     */
     public void mutateClusterSelect() {
         List<Double> imgAvg = attrib[0];
         List<Double> imgSD = attrib[1];
@@ -100,64 +125,24 @@ public class Analyzer extends Thread {
         clusters = result;
     }
 
-    public void run() {
-        System.out.println("running");
-        mutateClusterSelect();
-        clusterAnalysis();
-        printAttributes();
-//        FileWriter.outputAttribCSV("HEP00034_attrib.csv", attrib[0], attrib[1]);
-    }
-
-    private void printAttributes() {
-        System.out.println("Average of images averages:" + imgAvg_avg);
-        System.out.println("Standard deviation of images averages:" + imgAvg_sd);
-        System.out.println("Cluster (Avg)" + clusters.get(0));
-        System.out.println("Average of images standard deviation:" + imgSD_avg);
-        System.out.println("Standard deviation of images standard deviation:" + imgSD_sd);
-        System.out.println("Cluster (SD)" + clusters.get(1));
-        System.out.println("Processed cluster (avg):");
-        for (List<Integer> list : avg_mutantCluster) {
-            System.out.println(list);
-        }
-//        System.out.println("Processed cluster(sd): ");
-//        for (List<Integer> list : sd_mutantCluster) {
-//            System.out.println(list);
-//        }
-    }
-
-    private static double average(List<Double> list) {
-        double sum = 0;
-        for (Double num : list) {
-            sum += num;
-        }
-        return sum / list.size();
-    }
-
-    private static double sd_pop(List<Double> list, double average) {
-        double squareSum = 0;
-        for (Double num : list) {
-            squareSum += (num - average) * (num - average);
-        }
-        return Math.sqrt(squareSum / list.size());
-    }
-
-    private static double sd_sam(List<Double> list, double average) {
-        double squareSum = 0;
-        for (Double num : list) {
-            squareSum += (num - average) * (num - average);
-        }
-        return Math.sqrt(squareSum / (list.size() - 1));
-    }
-
-
-    //execute after mutantClusterSelect()
-    // write mutant clusters to class variable avg_mutantCluster and sd_mutantCluster
+    /**
+     * Analyze the images that are out of the confidence interval constructed using "image pixel average"
+     * and "image pixel standard deviation".
+     * For continuous images that are out of confidence interval (refers as cluster), it may not caused by
+     * mutated CT window, but structural change.
+     * <p>
+     * To handle such situation, the average and standard deviation within the cluster will be calculated.
+     * Then construct a confidence interval [cluster_head ± cluster_sd] and [cluster_tail ± cluster_sd]
+     * If the previous images and following image is out of constructed interval respectively, the cluster is judged
+     * as mutate interval and added to avg_mutateCluster or sd_mutateCluster which is the images may have
+     * abnormal CT window within the the volume.
+     * <p>
+     * Should execute after mutateClusterSelect(), so that the essential data
+     * has already filled into class variables
+     */
     private void clusterAnalysis() {
         List<List<Integer>> avgCluster = clusters.get(0);
         List<List<Integer>> sdCluster = clusters.get(1);
-
-        List<Integer> sdMutantClusterIdx = new LinkedList<>();
-        List<Integer> avgMutantClusterIdx = new LinkedList<>();
 
 
         for (int i = 0; i < avgCluster.size(); i++) {
@@ -166,7 +151,7 @@ public class Analyzer extends Thread {
             //if the cluster that out of the confidence interval has only one element, directly add to
             // the result array
             if (clusterIdx.size() == 1) {
-                avg_mutantCluster.add(clusterIdx); // add to result
+                avg_mutateCluster.add(clusterIdx); // add to result
                 continue;
             }
 
@@ -188,7 +173,7 @@ public class Analyzer extends Thread {
             }
 
             if (headMutate || tailMutate) {
-                avg_mutantCluster.add(clusterIdx); // add to result (cluster has multi values)
+                avg_mutateCluster.add(clusterIdx); // add to result (cluster has multi values)
             }
 
         }
@@ -196,12 +181,12 @@ public class Analyzer extends Thread {
 
         //Filter selected cluster
         for (int i = 0; i < sdCluster.size(); i++) {
-            List<Integer> clusterIdx = avgCluster.get(i);
+            List<Integer> clusterIdx = sdCluster.get(i);
 
             //if the cluster that out of the confidence interval has only one element, directly add to
             // the result array
             if (clusterIdx.size() == 1) {
-                sd_mutantCluster.add(clusterIdx); // add to result
+                sd_mutateCluster.add(clusterIdx); // add to result
                 continue;
             }
 
@@ -223,12 +208,49 @@ public class Analyzer extends Thread {
             }
 
             if (headMutate || tailMutate) {
-                sd_mutantCluster.add(clusterIdx); // add to result (cluster has multi values)
+                sd_mutateCluster.add(clusterIdx); // add to result (cluster has multi values)
             }
 
         }
 
 
+    }
+
+
+    //========================= Helper Methods ==========================
+
+    private static double average(List<Double> list) {
+        double sum = 0;
+        for (Double num : list) {
+            sum += num;
+        }
+        return sum / list.size();
+    }
+
+    /**
+     * @param list    the list contains sample data
+     * @param average the average of sample data
+     * @return the population standard deviation
+     */
+    private static double sd_pop(List<Double> list, double average) {
+        double squareSum = 0;
+        for (Double num : list) {
+            squareSum += (num - average) * (num - average);
+        }
+        return Math.sqrt(squareSum / list.size());
+    }
+
+    /**
+     * @param list    the lst contains smaple data
+     * @param average the average of sample data
+     * @return the sample standard deviation
+     */
+    private static double sd_sam(List<Double> list, double average) {
+        double squareSum = 0;
+        for (Double num : list) {
+            squareSum += (num - average) * (num - average);
+        }
+        return Math.sqrt(squareSum / (list.size() - 1));
     }
 
     /**
@@ -249,6 +271,23 @@ public class Analyzer extends Thread {
             list.add((Double) attrib[attribIdx].get(indices.get(i)));
         }
         return list;
+    }
+
+    private void printAttributes() {
+        System.out.println("Average of images averages:" + imgAvg_avg);
+        System.out.println("Standard deviation of images averages:" + imgAvg_sd);
+        System.out.println("Cluster (Avg)" + clusters.get(0));
+        System.out.println("Average of images standard deviation:" + imgSD_avg);
+        System.out.println("Standard deviation of images standard deviation:" + imgSD_sd);
+        System.out.println("Cluster (SD)" + clusters.get(1));
+        System.out.println("Processed cluster (avg):");
+        for (List<Integer> list : avg_mutateCluster) {
+            System.out.println(list);
+        }
+        System.out.println("Processed cluster(sd): ");
+        for (List<Integer> list : sd_mutateCluster) {
+            System.out.println(list);
+        }
     }
 
     public static void main(String[] args) throws Exception {
