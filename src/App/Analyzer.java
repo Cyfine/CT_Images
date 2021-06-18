@@ -195,11 +195,11 @@ public class Analyzer extends Thread {
             boolean headMutate = false;
             boolean tailMutate = false;
 
-            if (clusterHeadIdxPrev > 0 && (Double) attrib[1].get(clusterHeadIdxPrev) < cluster.get(0) - sd) {
+            if (clusterHeadIdxPrev > 0 && ((Double) attrib[1].get(clusterHeadIdxPrev) < cluster.get(0) - sd)  || (Double) attrib[1].get(clusterHeadIdxPrev) > cluster.get(0) + sd) {
                 headMutate = true;
             }
 
-            if (clusterTailIdxFollow < attrib[1].size() && (Double) attrib[1].get(clusterTailIdxFollow) > cluster.get(cluster.size() - 1) + sd) {
+            if (clusterTailIdxFollow < attrib[1].size() && ((Double) attrib[1].get(clusterTailIdxFollow) > cluster.get(cluster.size() - 1) + sd || (Double) attrib[1].get(clusterTailIdxFollow) > cluster.get(cluster.size() - 1) - sd) ) {
                 tailMutate = true;
             }
 
