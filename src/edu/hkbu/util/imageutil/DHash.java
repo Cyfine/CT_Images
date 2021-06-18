@@ -1,7 +1,7 @@
 /*
 The dHash Algorithm. Each image (in processing.core.PImage format) is processed as a thread
 */
-package Util.ImageUtil;
+package edu.hkbu.util.imageutil;
 
 import processing.core.*;
 

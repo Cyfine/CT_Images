@@ -1,4 +1,4 @@
-package Util.IO;
+package edu.hkbu.util.stringutil;
 import java.util.*;
 public class Tokenizer {
 

@@ -1,4 +1,4 @@
-package App;
+package edu.hkbu.app;
 
 import java.util.*;
 

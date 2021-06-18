@@ -13,34 +13,39 @@
  * will be selected. Similarly, we can also construct confidence interval using standard deviation(refers to pixels)
  * of the images. This program make use of both "pixel standard deviation" and "pixel average"
  */
-package App;
+package edu.hkbu.app;
 
 
 import processing.core.*;
 
 import java.util.*;
 
-import static App.runApp.*;
+import static edu.hkbu.app.runApp.*;
 
 public class Analyzer extends Thread {
-    private final List<PImage> images;
-    private List[] attrib; // [0] for average, [1] for standard deviation
-    private double imgAvg_avg; // the average of "image pixel averages"
-    private double imgAvg_sd;  // the average of "image pixel averages"
-    private double imgSD_avg;
-    private double imgSD_sd;
-    private List<List<Integer>> avg_mutateCluster; // the index in attrib[0]
-    private List<List<Integer>> sd_mutateCluster;  // the index in attrib[1]
+    protected final List<PImage> images;
+    protected List[] attrib; // [0] for average, [1] for standard deviation
+    protected double imgAvg_avg; // the average of "image pixel averages"
+    protected double imgAvg_sd;  // the average of "image pixel averages"
+    protected double imgSD_avg;
+    protected double imgSD_sd;
+    protected List<List<Integer>> avg_mutateCluster; // the index in attrib[0]
+    protected List<List<Integer>> sd_mutateCluster;  // the index in attrib[1]
 
-    public List<List<List<Integer>>> clusters;
+    protected List<List<List<Integer>>> clusters;
     // clusters.get(0) is the mutate clusters selected using average
     // clusters.get(1) is the mutate clusters selected using standard deviation.
 
-    //========================= Constructor =============================
+    protected String path = null;
+    // file path is indicate the CT volume when printing result if there are multiple CT volumnes
+    // loaded into the program.
+
+
+    //========================= Constructors =============================
 
     /**
      * Constructor
-     *
+     * <p>
      * Each analyzer instance contains a single CT volume
      *
      * @param images images in the CT volume
@@ -52,18 +57,22 @@ public class Analyzer extends Thread {
         attrib = calAttribute(images);
     }
 
+    public Analyzer(List<PImage> images, String path) throws InterruptedException {
+        this(images);
+        this.path = path;
+    }
+
+
+    //======================= thread execution ==========================
     public void run() {
         mutateClusterSelect();
         clusterAnalysis();
-        printAttributes();
+        // printAttributes();
 //        FileWriter.outputAttribCSV("HEP00034_attrib.csv", attrib[0], attrib[1]);
     }
 
 
     //======================== core methods =============================
-    // write back mutate cluster into clusters clusters.get(0) is cluster selected using average
-    // clusters.get(1) is cluster selected using standard deviation.
-    //*
 
     /**
      * Select the images that is out of the confidence interval
@@ -71,8 +80,8 @@ public class Analyzer extends Thread {
      * [imgSD_avg ± imgSD_sd]
      */
     public void mutateClusterSelect() {
-        List<Double> imgAvg = (List<Double>)attrib[0];
-        List<Double> imgSD = (List<Double>)attrib[1];
+        List<Double> imgAvg = (List<Double>) attrib[0];
+        List<Double> imgSD = (List<Double>) attrib[1];
 
         List<List<Integer>> avgOverRange = new LinkedList<>();
         List<List<Integer>> sdOverRange = new LinkedList<>();
@@ -94,6 +103,7 @@ public class Analyzer extends Thread {
         boolean img_SD_adjacent = false;
         int sd_clusterIdx = -1;
 
+        // select the out range images using "image pixels average"
         for (int i = 0; i < attrib[1].size(); i++) {
             if (imgAvg.get(i) < imgAvg_lowerbound || imgAvg.get(i) > imgAvg_upperbound) {
                 if (img_Avg_adjacent) {
@@ -107,6 +117,7 @@ public class Analyzer extends Thread {
                 img_Avg_adjacent = false;
             }
 
+            // select the our range images using "image pixel standard deviation"
             if (imgSD.get(i) < img_sd_lowerbound || imgSD.get(i) > img_sd_upperbound) {
                 if (img_SD_adjacent) {
                     sdOverRange.get(sd_clusterIdx).add(i);
@@ -119,6 +130,7 @@ public class Analyzer extends Thread {
                 img_SD_adjacent = false;
             }
         }
+
         List<List<List<Integer>>> result = new LinkedList<>();
         result.add(avgOverRange);
         result.add(sdOverRange);
@@ -162,11 +174,13 @@ public class Analyzer extends Thread {
             boolean headMutate = false;
             boolean tailMutate = false;
 
-            if (clusterHeadIdxPrev > 0 && (Double) attrib[0].get(clusterHeadIdxPrev) < cluster.get(0) - sd) {
+            if (clusterHeadIdxPrev > 0 && ((Double) attrib[0].get(clusterHeadIdxPrev) < cluster.get(0) - sd
+                    || (Double) attrib[0].get(clusterHeadIdxPrev) < cluster.get(0) + sd)) {
                 headMutate = true;
             }
 
-            if (clusterTailIdxFollow < attrib[0].size() && (Double) attrib[0].get(clusterTailIdxFollow) > cluster.get(cluster.size() - 1) + sd) {
+            if (clusterTailIdxFollow < attrib[0].size() && ((Double) attrib[0].get(clusterTailIdxFollow) > cluster.get(cluster.size() - 1) + sd ||
+                    (Double) attrib[0].get(clusterTailIdxFollow) > cluster.get(cluster.size() - 1) - sd)) {
                 tailMutate = true;
             }
 
@@ -195,11 +209,11 @@ public class Analyzer extends Thread {
             boolean headMutate = false;
             boolean tailMutate = false;
 
-            if (clusterHeadIdxPrev > 0 && ((Double) attrib[1].get(clusterHeadIdxPrev) < cluster.get(0) - sd)  || (Double) attrib[1].get(clusterHeadIdxPrev) > cluster.get(0) + sd) {
+            if (clusterHeadIdxPrev > 0 && ((Double) attrib[1].get(clusterHeadIdxPrev) < cluster.get(0) - sd || (Double) attrib[1].get(clusterHeadIdxPrev) > cluster.get(0) + sd)) {
                 headMutate = true;
             }
 
-            if (clusterTailIdxFollow < attrib[1].size() && ((Double) attrib[1].get(clusterTailIdxFollow) > cluster.get(cluster.size() - 1) + sd || (Double) attrib[1].get(clusterTailIdxFollow) > cluster.get(cluster.size() - 1) - sd) ) {
+            if (clusterTailIdxFollow < attrib[1].size() && ((Double) attrib[1].get(clusterTailIdxFollow) > cluster.get(cluster.size() - 1) + sd || (Double) attrib[1].get(clusterTailIdxFollow) > cluster.get(cluster.size() - 1) - sd)) {
                 tailMutate = true;
             }
 
@@ -269,7 +283,10 @@ public class Analyzer extends Thread {
         return list;
     }
 
-    private void printAttributes() {
+    void printAttributes() {
+        if (path != null) {
+            System.out.println("File path: " + path);
+        }
         System.out.println("Average of images averages:" + imgAvg_avg);
         System.out.println("Standard deviation of images averages:" + imgAvg_sd);
         System.out.println("Cluster (Avg)" + clusters.get(0));

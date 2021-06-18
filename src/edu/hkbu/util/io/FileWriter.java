@@ -1,4 +1,4 @@
-package Util.IO;
+package edu.hkbu.util.io;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;

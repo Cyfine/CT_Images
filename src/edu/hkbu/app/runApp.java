@@ -1,33 +1,38 @@
-package App;
+package edu.hkbu.app;
 
 import java.util.*;
 
 import processing.core.*;
-import Util.IO.*;
-import Util.IO.ImageReader.ImgFormat;
+import edu.hkbu.util.io.*;
 
-import static Util.IO.FileWriter.*;
-import static Util.IO.Tokenizer.*;
+import static edu.hkbu.util.io.FileWriter.*;
+import static edu.hkbu.util.stringutil.Tokenizer.*;
 
-import Util.ImageUtil.DHash;
-import Util.ImageUtil.ImgAttributeCal;
+import edu.hkbu.util.imageutil.DHash;
+import edu.hkbu.util.imageutil.ImgAttributeCal;
 
-import static Util.ImageUtil.Processing.*;
+
+
+import static edu.hkbu.util.imageutil.Processing.*;
 
 /*
 The path of the test file: D:/Confidential_Data/CT images/HEP0001 , header Se2Im, start Index 30
 load D:/Confidential_Data/CT_images/HEP0001 Se2Im 30 jpg
  */
 public class runApp {
-    List<PImage> images = null;
-
+    private List<PImage> currentImages;
+    private List<List<PImage>> imagesSet = new LinkedList<>();
+    private List<Analyzer> threads = new LinkedList<>();
+    private int lastProcessThreadIdx = -1;
 
     public static void main_0(String[] args) throws Exception {
-//        List<PImage> images = loadImages("C:/Users/30421/Desktop/test", "test_", ImgFormat.jpg, 1);
-//
-//        List<int[]> hashValues = dHashing(images);
-//        System.out.println(DHash.hammingDistance(hashValues.get(6), hashValues.get(7)));
-//        System.out.println(DHash.similarity(hashValues.get(6), hashValues.get(7)));
+        // List<PImage> images = loadImages("C:/Users/30421/Desktop/test", "test_",
+        // ImgFormat.jpg, 1);
+        //
+        // List<int[]> hashValues = dHashing(images);
+        // System.out.println(DHash.hammingDistance(hashValues.get(6),
+        // hashValues.get(7)));
+        // System.out.println(DHash.similarity(hashValues.get(6), hashValues.get(7)));
         List<PImage> images = null;
         List<int[]> hashValues = null;
         List<Integer> adjHammingDist = null;
@@ -161,34 +166,26 @@ public class runApp {
                     case "analyze":
                         analyze();
                         break;
+                    case "list":
+                        list(cmdArgs);
                     case "dHash":
-
                         break;
                     case "test":
                         main_0(new String[]{"main"});
                         break;
-                    case "output" :
+                    case "output":
                         output(cmdArgs);
                         break;
                     default:
                         System.out.println("Unknown command.");
                 }
             } catch (Exception e) {
-               System.out.println(e.getMessage());
+                System.out.println(e.getMessage());
             }
 
-
         }
 
     }
-
-    private void output(String[] cmdArgs) {
-        if(cmdArgs.length  != 2){
-            System.out.println("Invalid number of arguments");
-        }
-
-    }
-
 
     private String[] getUserInput(Scanner in, String header) {
         String input;
@@ -207,32 +204,56 @@ public class runApp {
         return getUserInput(in, ">");
     }
 
-    //--------------------------commands----------------------------
+    // =========================== Commands ===================================
     private void load(String[] cmdArgs) throws Exception {
         if (cmdArgs.length != 5) {
             throw new Exception("Invalid number of arguments");
         }
         try {
-            images = loadImages(cmdArgs[1], cmdArgs[2], cmdArgs[4], Integer.parseInt(cmdArgs[3]));
+            String volumePath = cmdArgs[1] + "/" + cmdArgs[2] + cmdArgs[3] + "." + cmdArgs[4];
+            currentImages = loadImages(cmdArgs[1], cmdArgs[2], cmdArgs[4], Integer.parseInt(cmdArgs[3]));
+            if (currentImages.size() == 0 || currentImages == null) {
+                return;
+            }
+            imagesSet.add(currentImages);
+            threads.add(new Analyzer(currentImages, volumePath));
         } catch (NumberFormatException e) {
             throw new Exception("Invalid number format");
         }
     }
 
     private void show() throws Exception {
-        if (images != null) {
-            displayImage(images);
+        if (currentImages != null) {
+            displayImage(currentImages);
         } else {
             throw new Exception("No images loaded yet.");
         }
     }
 
-    private void analyze() throws InterruptedException {
-        Analyzer thread = new Analyzer(images);
-        thread.start();
-        thread.join();
-        return;
+
+    private void analyze() throws Exception {
+        if (currentImages == null) {
+            throw new Exception("No images loaded yet.");
+        }
+
+        if (lastProcessThreadIdx < threads.size()) {
+            for (int i = lastProcessThreadIdx + 1; i < threads.size(); i++) {
+                threads.get(i).start();
+
+            }
+            for (int i = lastProcessThreadIdx + 1; i < threads.size(); i++) {
+                threads.get(i).join();
+            }
+        }
+
+        for (Analyzer thread : threads) {
+            thread.printAttributes();
+            System.out.println();
+        }
+        lastProcessThreadIdx = threads.size() - 1;
+
     }
+
 
     private void help(String[] cmdArgs) {
         if (cmdArgs.length < 2) {
@@ -258,6 +279,49 @@ public class runApp {
 
     }
 
+    private void output(String[] cmdArgs) {
+        if (cmdArgs.length != 2) {
+            System.out.println("Invalid number of arguments");
+        } else {
+
+        }
+
+    }
+
+    private void list(String[] cmdArgs) throws Exception {
+        if (threads.size() == 0 || threads == null) {
+            throw new Exception("Images unloaded. Load images first");
+        }
+        if (cmdArgs.length == 1) {
+            for (Analyzer thread : threads) {
+                System.out.println(thread.path);
+            }
+        } else if (cmdArgs.length == 2) {
+            List<Analyzer> result = search(cmdArgs[1]);
+            for (Analyzer thread : result) {
+                System.out.println(thread.path);
+            }
+
+        } else {
+            System.out.println("Invalid number of arguments");
+        }
+    }
+
+    /**
+     * Scanning throw crated  each analyzer.filePath to find if the CT volume with key word exists
+     */
+    private List<Analyzer> search(String keyword) {
+        List<Analyzer> result = new LinkedList<>();
+        for (Analyzer thread : threads) {
+            if (thread.path.contains(keyword)) {
+                result.add(thread);
+            }
+        }
+        return result;
+    }
+
+
+    // =========================== helper methods =============================
     private static void printHashes(List<int[]> list) {
         if (list.size() == 0)
             return;
@@ -280,7 +344,6 @@ public class runApp {
 
     }
 
-
     private static void printIntArray(int[] array) {
         System.out.print("[");
 
@@ -293,26 +356,8 @@ public class runApp {
         }
     }
 
-
-    private static ImgFormat formatParser(String format) {
-        format = format.trim().toLowerCase();
-        switch (format) {
-            case "jpg":
-                return ImgFormat.jpg;
-            case "png":
-                return ImgFormat.png;
-            case "gif":
-                return ImgFormat.gif;
-            case "jpeg":
-                return ImgFormat.jpeg;
-            case "tga":
-                return ImgFormat.tga;
-            default:
-                return null;
-        }
-    }
-
-    protected static List<PImage> loadImages(String path, String header, String format, int startIndex) throws Exception {
+    protected static List<PImage> loadImages(String path, String header, String format, int startIndex)
+            throws Exception {
         ImageReader reader = new ImageReader(path, header, format, startIndex);
         List<PImage> images = reader.getImages();
         for (PImage image : images) {
@@ -321,9 +366,9 @@ public class runApp {
         return images;
     }
 
-
     /**
-     * calculating the dHash values with multi-threading design, to improve the image processing speed
+     * calculating the dHash values with multi-threading design, to improve the
+     * image processing speed
      *
      * @param images the images set used to calculate dHash values each
      * @return the dHash values of each images in a LinkedList
@@ -332,7 +377,7 @@ public class runApp {
         DHash[] threads = new DHash[images.size()];
         List<int[]> dHashValues = new LinkedList<>();
         for (int i = 0; i < images.size(); i++) {
-            threads[i] = new DHash(images.get(i), 64); //modify bitLength here
+            threads[i] = new DHash(images.get(i), 64); // modify bitLength here
         }
 
         for (int i = 0; i < images.size(); i++) {
@@ -381,7 +426,6 @@ public class runApp {
 
     }
 
-
     private static List<Integer> adjacentHammingDist(List<int[]> hashes) {
         List<Integer> list = new LinkedList<>();
 
@@ -401,6 +445,5 @@ public class runApp {
 
         return list;
     }
-
 
 }

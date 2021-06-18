@@ -1,6 +1,4 @@
-package Util.ImageUtil;
-
-import java.util.*;
+package edu.hkbu.util.imageutil;
 
 import processing.core.*;
 

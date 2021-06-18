@@ -1,4 +1,4 @@
-package Util.IO;
+package edu.hkbu.util.io;
 
 import java.util.*;
 import java.util.List;
@@ -75,6 +75,19 @@ public class ImageReader extends PApplet {
                     init = false;
                     continue;
                 } else {
+                   /*
+                   Preliminarily judge the the reading of a CT volume finished.
+                   But there exist discontinuous image index, skip an index to see if there is any image within a
+                   CT volume exists
+                   */
+                    imgName = header + prependZeroNum(cnt, minNumLength) + "." + format;
+                    PImage img = loadImage(dataPath + '/' + imgName);
+                    if(img != null){
+                        System.out.println("Image loss detected");
+                        System.out.println("\""+header+  prependZeroNum(cnt-1, minNumLength) +"."+format + "\" not found");
+                        continue;
+                    }
+
                     if (images.size() == 0) {
                         System.out.println("Load failed, check arguments correctness.");
                     } else {

@@ -4,10 +4,9 @@ Readme: This class is used to display CT images.
 There are two display method. It can be displayed by either pass and List<PImage>
 or passing the essential arguments to the constructor and load images it self.
  */
-package Util.ImageUtil;
+package edu.hkbu.util.imageutil;
 
-import Util.IO.ImageReader;
-import Util.IO.ImageReader.ImgFormat;
+import edu.hkbu.util.io.ImageReader;
 import processing.core.*;
 
 import java.util.*;

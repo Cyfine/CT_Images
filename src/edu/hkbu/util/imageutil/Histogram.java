@@ -1,4 +1,4 @@
-package Util.ImageUtil;
+package edu.hkbu.util.imageutil;
 
 import java.awt.BorderLayout;
 import java.awt.Canvas;
