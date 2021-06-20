@@ -12,8 +12,9 @@ import edu.hkbu.util.imageutil.DHash;
 import edu.hkbu.util.imageutil.ImgAttributeCal;
 
 
+import static edu.hkbu.util.imageutil.ImageViewer.*;
+import static edu.hkbu.util.stringutil.StringSearch.*;
 
-import static edu.hkbu.util.imageutil.Processing.*;
 
 /*
 The path of the test file: D:/Confidential_Data/CT images/HEP0001 , header Se2Im, start Index 30
@@ -296,11 +297,13 @@ public class runApp {
             for (Analyzer thread : threads) {
                 System.out.println(thread.path);
             }
+            System.out.println("Total " + threads.size() + " results");
         } else if (cmdArgs.length == 2) {
             List<Analyzer> result = search(cmdArgs[1]);
             for (Analyzer thread : result) {
                 System.out.println(thread.path);
             }
+            System.out.println("Total " + result.size() + " results");
 
         } else {
             System.out.println("Invalid number of arguments");
@@ -308,12 +311,12 @@ public class runApp {
     }
 
     /**
-     * Scanning throw crated  each analyzer.filePath to find if the CT volume with key word exists
+     * Scanning through each analyzer.filePath to find if the CT volume with key word exists
      */
     private List<Analyzer> search(String keyword) {
         List<Analyzer> result = new LinkedList<>();
         for (Analyzer thread : threads) {
-            if (thread.path.contains(keyword)) {
+            if (containsIgnoreCase(keyword, thread.path)) {
                 result.add(thread);
             }
         }

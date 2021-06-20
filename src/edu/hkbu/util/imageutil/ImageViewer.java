@@ -12,7 +12,7 @@ import processing.core.*;
 import java.util.*;
 
 
-public class Processing extends PApplet {
+public class ImageViewer extends PApplet {
 
     private List<PImage> images = new LinkedList<PImage>();
     private PImage currentImage;
@@ -25,7 +25,7 @@ public class Processing extends PApplet {
     private String format;
     private int startIndex;
 
-    public Processing(List<PImage> images) {
+    public ImageViewer(List<PImage> images) {
         List<PImage> newList = new ArrayList<PImage>();
         for (PImage img : images) {
             newList.add(img);
@@ -33,7 +33,7 @@ public class Processing extends PApplet {
         this.images = newList;
     }
 
-    public Processing(String path, String header, String format, String startIndex) throws Exception {
+    public ImageViewer(String path, String header, String format, String startIndex) throws Exception {
         this.path = path;
         this.header = header;
         this.format = format;
@@ -114,14 +114,14 @@ public class Processing extends PApplet {
     public static void displayImage(List<PImage> images) {
 
         String[] appletArgs = {"Processing"};
-        Processing instance = new Processing(images);
+        ImageViewer instance = new ImageViewer(images);
         runSketch(appletArgs, instance);
 
     }
 
     public static void displayImage(String path, String header, String format, String index) throws Exception {
         String[] appletArgs = {"Processing"};
-        Processing instance = new Processing(path, header, format, index);
+        ImageViewer instance = new ImageViewer(path, header, format, index);
         runSketch(appletArgs, instance);
     }
 
