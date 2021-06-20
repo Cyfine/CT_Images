@@ -14,23 +14,39 @@ import java.util.*;
 
 public class ImageViewer extends PApplet {
 
-    private List<PImage> images = new LinkedList<PImage>();
+    private List<PImage> currentImgSet = new LinkedList<PImage>();
     private PImage currentImage;
     private Scanner in = new Scanner(System.in);
     private int imgIndex = 0;
+    private boolean singleVolume;
+    private List imgSet;
 
     //class variable used to load images itself
     private String path;
     private String header;
     private String format;
     private int startIndex;
+    private String title = null;
 
     public ImageViewer(List<PImage> images) {
         List<PImage> newList = new ArrayList<PImage>();
         for (PImage img : images) {
             newList.add(img);
         }
-        this.images = newList;
+        singleVolume  = true;
+        this.currentImgSet = newList;
+    }
+
+    public ImageViewer(List<PImage> images , String title){
+        this(images);
+        this.title = title;
+    }
+
+    public ImageViewer(List imgSet, boolean singleVolume){
+
+        if(singleVolume){
+            this.imgSet = imgSet;
+        }
     }
 
     public ImageViewer(String path, String header, String format, String startIndex) throws Exception {
@@ -44,11 +60,16 @@ public class ImageViewer extends PApplet {
         }
 
 
+
     }
 
 
-    public void setup() {
+    public void settings() {
         size(512, 512);
+        if(title != null){
+            surface.setTitle(title);
+        }
+
 //        try {
 //            images = loadImages(path, "header", format, startIndex);
 //        } catch (Exception e) {
@@ -57,7 +78,7 @@ public class ImageViewer extends PApplet {
     }
 
     public void draw() {
-        currentImage = images.get(imgIndex);
+        currentImage = currentImgSet.get(imgIndex);
         image(currentImage, 0, 0);
         fill(255);
         text("" + imgIndex, 0, 10);
@@ -69,7 +90,7 @@ public class ImageViewer extends PApplet {
         if (keyCode == LEFT && imgIndex > 0) {
             imgIndex--;
         }
-        if (keyCode == RIGHT && imgIndex < images.size() - 1) {
+        if (keyCode == RIGHT && imgIndex < currentImgSet.size() - 1) {
             imgIndex++;
         }
 //        if (keyCode == UP) {
@@ -118,6 +139,7 @@ public class ImageViewer extends PApplet {
         runSketch(appletArgs, instance);
 
     }
+
 
     public static void displayImage(String path, String header, String format, String index) throws Exception {
         String[] appletArgs = {"Processing"};
