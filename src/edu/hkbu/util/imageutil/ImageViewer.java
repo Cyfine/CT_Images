@@ -11,14 +11,17 @@ import processing.core.*;
 
 import java.util.*;
 
+import static edu.hkbu.util.imageutil.DHash.dHashing;
+
 public class ImageViewer extends PApplet {
 
-    private List<PImage> currentImgSet = new LinkedList<PImage>();
+    private List<PImage> images = new LinkedList<PImage>();
     private PImage currentImage;
     private Scanner in = new Scanner(System.in);
     private int imgIndex = 0;
     private boolean singleVolume;
     private List imgSet;
+    private List<int[]> dHash;
 
     //class variable used to load images itself
     private String path;
@@ -26,6 +29,10 @@ public class ImageViewer extends PApplet {
     private String format;
     private int startIndex;
     private String title;
+    boolean hist = false;
+    boolean hashKey = false;
+
+    boolean hash_init = true;
 
 
     public ImageViewer(List<PImage> images) {
@@ -33,12 +40,9 @@ public class ImageViewer extends PApplet {
         for (PImage img : images) {
             newList.add(img);
         }
-        singleVolume  = true;
-        this.currentImgSet = newList;
+        singleVolume = true;
+        this.images = newList;
     }
-
-
-
 
 
     public ImageViewer(String path, String header, String format, String startIndex) throws Exception {
@@ -53,7 +57,7 @@ public class ImageViewer extends PApplet {
 
     }
 
-    public ImageViewer(List<PImage> images, String title){
+    public ImageViewer(List<PImage> images, String title) {
         this(images);
         this.title = title;
 
@@ -61,7 +65,7 @@ public class ImageViewer extends PApplet {
 
 
     public void setup() {
-        size(512, 512);
+        size(1024, 512);
         this.frame.setTitle(title);
 //        try {
 //            images = loadImages(path, "header", format, startIndex);
@@ -71,11 +75,88 @@ public class ImageViewer extends PApplet {
     }
 
     public void draw() {
-        currentImage = currentImgSet.get(imgIndex);
+        background(255);
+        currentImage = images.get(imgIndex);
         image(currentImage, 0, 0);
         fill(255);
-        text("" + imgIndex, 0, 10);
+
+        textSize(30);
+        text("" + imgIndex, 0, 30);
+
+        if (hist) {
+            pushMatrix();
+            translate(512, 0);
+            fill(0);
+            hist(currentImage, calHist(currentImage));
+            popMatrix();
+        }
+
+        if (hashKey) {
+
+            if (hash_init) {
+                try {
+                    dHash = dHashing(images);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            pushMatrix();
+            translate(512, 0);
+
+            showHashKey(dHash.get(imgIndex));
+            popMatrix();
+        }
+
         noLoop();
+    }
+
+    public int[] calHist(PImage img) {
+        int[] hist = new int[256];
+        for (int i = 0; i < img.width; i++) {
+            for (int j = 0; j < img.height; j++) {
+                int bright = (int) brightness(get(i, j));
+                hist[bright]++;
+            }
+        }
+        return hist;
+    }
+
+    public void showHashKey(int[] hash) {
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (hash[i * 8 + j] == 1) {
+                    fill(255);
+                } else {
+                    fill(0);
+                }
+                rect(64 * j, 64 * i, 64, 64);
+            }
+
+        }
+    }
+
+
+    public void hist(PImage img, int[] hist) {
+
+
+        // Find the largest value in the histogram
+        int histMax = 4000;
+
+        stroke(0);
+
+        // Draw half of the histogram (skip every second value)
+        for (int i = 0; i < img.width; i += 2) {
+
+            // Map i (from 0..img.width) to a location in the histogram (0..255)
+            int which = (int) map(i, 0, img.width, 0, 255);
+
+            // Convert the histogram value to a location between
+            // the bottom and the top of the picture
+            int y = (int) map(hist[which], 0, histMax, img.height, 0);
+            line(i, img.height, i, y);
+        }
     }
 
     public void keyPressed() {
@@ -83,17 +164,18 @@ public class ImageViewer extends PApplet {
         if (keyCode == LEFT && imgIndex > 0) {
             imgIndex--;
         }
-        if (keyCode == RIGHT && imgIndex < currentImgSet.size() - 1) {
+        if (keyCode == RIGHT && imgIndex < images.size() - 1) {
             imgIndex++;
         }
-//        if (keyCode == UP) {
-//            for (PImage img : images) {
-//                polarize(img);
-//            }
-//        }
-//        if (keyCode == DOWN) {
-//            setup();
-//        }
+        if (keyCode == UP) {
+            hist = true;
+        }
+        if (keyCode == DOWN) {
+            hist = false;
+        }
+        if (keyCode == 'h' || keyCode == 'H') {
+            hashKey = !hashKey;
+        }
 
 
     }
@@ -115,7 +197,8 @@ public class ImageViewer extends PApplet {
     }
 
 
-    private static List<PImage> loadImages(String path, String header, String format, int startIndex) throws Exception {
+    private static List<PImage> loadImages(String path, String header, String format, int startIndex) throws
+            Exception {
         ImageReader reader = new ImageReader(path, header, format, startIndex);
         List<PImage> images = reader.getImages();
         for (PImage image : images) {
@@ -133,7 +216,7 @@ public class ImageViewer extends PApplet {
 
     }
 
-    public static void displayImage(List<PImage> images, String title){
+    public static void displayImage(List<PImage> images, String title) {
         String[] appletArgs = {"Processing"};
         ImageViewer instance = new ImageViewer(images, title);
         runSketch(appletArgs, instance);

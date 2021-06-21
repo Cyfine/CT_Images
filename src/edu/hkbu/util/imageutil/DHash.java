@@ -5,6 +5,9 @@ package edu.hkbu.util.imageutil;
 
 import processing.core.*;
 
+import java.util.LinkedList;
+import java.util.List;
+
 
 public class DHash extends Thread {
 
@@ -21,6 +24,35 @@ public class DHash extends Thread {
     public DHash(PImage image, int bitLength) {
         this.image = image;
         this.rowNum = (int) Math.sqrt(bitLength);
+    }
+
+    /**
+     * calculating the dHash values with multi-threading design, to improve the
+     * image processing speed
+     *
+     * @param images the images set used to calculate dHash values each
+     * @return the dHash values of each images in a LinkedList
+     */
+    public static List<int[]> dHashing(List<PImage> images) throws InterruptedException {
+        DHash[] threads = new DHash[images.size()];
+        List<int[]> dHashValues = new LinkedList<>();
+        for (int i = 0; i < images.size(); i++) {
+            threads[i] = new DHash(images.get(i), 64); // modify bitLength here
+        }
+
+        for (int i = 0; i < images.size(); i++) {
+            threads[i].start();
+        }
+
+        for (int i = 0; i < images.size(); i++) {
+            threads[i].join();
+        }
+
+        for (int i = 0; i < images.size(); i++) {
+            dHashValues.add(threads[i].dHash);
+        }
+
+        return dHashValues;
     }
 
     /**

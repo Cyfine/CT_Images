@@ -90,7 +90,7 @@ public class runApp {
                     break;
                 case "hash":
                     if (images != null) {
-                        hashValues = dHashing(images);
+                        hashValues = DHash.dHashing(images);
                         adjHammingDist = adjacentHammingDist(hashValues);
                         adjSimilarity = adjacentSimilarity(hashValues);
 
@@ -111,7 +111,7 @@ public class runApp {
                     break;
                 case "attrib":
                     if (images != null) {
-                        List[] result = calAttribute(images);
+                        List[] result = ImgAttributeCal.calAttribute(images);
                         standardDeviation = result[1];
                         average = result[0];
                         System.out.println("Average of images: " + average);
@@ -365,66 +365,6 @@ public class runApp {
             image.loadPixels();
         }
         return images;
-    }
-
-    /**
-     * calculating the dHash values with multi-threading design, to improve the
-     * image processing speed
-     *
-     * @param images the images set used to calculate dHash values each
-     * @return the dHash values of each images in a LinkedList
-     */
-    private static List<int[]> dHashing(List<PImage> images) throws InterruptedException {
-        DHash[] threads = new DHash[images.size()];
-        List<int[]> dHashValues = new LinkedList<>();
-        for (int i = 0; i < images.size(); i++) {
-            threads[i] = new DHash(images.get(i), 64); // modify bitLength here
-        }
-
-        for (int i = 0; i < images.size(); i++) {
-            threads[i].start();
-        }
-
-        for (int i = 0; i < images.size(); i++) {
-            threads[i].join();
-        }
-
-        for (int i = 0; i < images.size(); i++) {
-            dHashValues.add(threads[i].dHash);
-        }
-
-        return dHashValues;
-    }
-
-    /**
-     * calculate the average and variance of each images with multi-threading
-     *
-     * @return List[0] average, List[1] standard deviation
-     */
-    public static List<Double>[] calAttribute(List<PImage> images) throws InterruptedException {
-        ImgAttributeCal[] threads = new ImgAttributeCal[images.size()];
-        LinkedList<Double> standardDeviation = new LinkedList<>();
-        LinkedList<Double> average = new LinkedList<>();
-
-        for (int i = 0; i < images.size(); i++) {
-            threads[i] = new ImgAttributeCal(images.get(i));
-        }
-
-        for (int i = 0; i < images.size(); i++) {
-            threads[i].start();
-        }
-
-        for (int i = 0; i < images.size(); i++) {
-            threads[i].join();
-        }
-
-        for (int i = 0; i < images.size(); i++) {
-            standardDeviation.add(threads[i].standDeviation);
-            average.add(threads[i].average);
-        }
-
-        return new LinkedList[]{average, standardDeviation};
-
     }
 
     private static List<Integer> adjacentHammingDist(List<int[]> hashes) {

@@ -16,6 +16,7 @@
 package edu.hkbu.app;
 
 
+import edu.hkbu.util.imageutil.ImgAttributeCal;
 import processing.core.*;
 
 import java.util.*;
@@ -24,7 +25,8 @@ import static edu.hkbu.app.runApp.*;
 
 public class Analyzer extends Thread {
     protected final List<PImage> images;
-    protected List[] attrib; // [0] for average, [1] for standard deviation
+    protected List[] attrib = new List[2]; // [0] for average, [1] for standard deviation
+    protected List<int[]> histPlot;
     protected double imgAvg_avg; // the average of "image pixel averages"
     protected double imgAvg_sd;  // the average of "image pixel averages"
     protected double imgSD_avg;
@@ -54,7 +56,10 @@ public class Analyzer extends Thread {
         this.images = images;
         avg_mutateCluster = new LinkedList<>();
         sd_mutateCluster = new LinkedList<>();
-        attrib = calAttribute(images);
+        List[] result = ImgAttributeCal.calAttribute(images);
+        attrib[0] = result[0];
+        attrib[1] = result[1];
+        histPlot = result[2];
     }
 
     public Analyzer(List<PImage> images, String path) throws InterruptedException {
@@ -225,6 +230,7 @@ public class Analyzer extends Thread {
 
 
     }
+
 
 
     //========================= Helper Methods ==========================
