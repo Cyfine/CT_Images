@@ -169,9 +169,7 @@ public class Histogram extends JFrame implements ChangeListener, ActionListener{
             int h = bfImg.getHeight();
             int pix[] = new int[w*h];
             int hist[] = new int[256];
-			/*for(int i=0; i<hist.length; i++) {
-				hist[i] = 0;
-			}*/
+
             int imgType = bfImg.getType();
             int temp;
             bfImg.getRGB(0, 0, w, h, pix, 0, w);

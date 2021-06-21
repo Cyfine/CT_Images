@@ -84,8 +84,7 @@ public class runApp {
                     String format;
                     do {
                         System.out.println("Input the source images format:");
-                        System.out.print("Format>");
-                        format = in.nextLine();
+                         format = in.nextLine();
                     } while (format == null);
                     images = loadImages(path, header, format, index);
                     break;
@@ -224,8 +223,10 @@ public class runApp {
     }
 
     private void show() throws Exception {
-        if (currentImages != null) {
-            displayImage(currentImages);
+        if (imagesSet.size() != 0) {
+          for(Analyzer thread : threads ){
+              displayImage(thread.images, thread.path);
+          }
         } else {
             throw new Exception("No images loaded yet.");
         }
@@ -281,11 +282,8 @@ public class runApp {
     }
 
     private void output(String[] cmdArgs) {
-        if (cmdArgs.length != 2) {
-            System.out.println("Invalid number of arguments");
-        } else {
 
-        }
+
 
     }
 

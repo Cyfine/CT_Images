@@ -1,3 +1,9 @@
+/*
+ * Readme: Only support processing 2.x.
+ * Processing 3 do not allow loadImages outside setup()
+ * which will fail in loading
+ */
+
 package edu.hkbu.util.io;
 
 import java.util.*;
@@ -22,6 +28,7 @@ public class ImageReader extends PApplet {
         dataPath = dir;
         this.header = header;
         this.format = format;
+
         validateFormat(format);
 
     }
@@ -49,6 +56,7 @@ public class ImageReader extends PApplet {
                 throw new Exception("ImageReader: Invalid format");
         }
     }
+
 
     /**
      * A set of images in the directory with structured filename will be loaded to the program

@@ -11,7 +11,6 @@ import processing.core.*;
 
 import java.util.*;
 
-
 public class ImageViewer extends PApplet {
 
     private List<PImage> currentImgSet = new LinkedList<PImage>();
@@ -26,7 +25,8 @@ public class ImageViewer extends PApplet {
     private String header;
     private String format;
     private int startIndex;
-    private String title = null;
+    private String title;
+
 
     public ImageViewer(List<PImage> images) {
         List<PImage> newList = new ArrayList<PImage>();
@@ -37,17 +37,9 @@ public class ImageViewer extends PApplet {
         this.currentImgSet = newList;
     }
 
-    public ImageViewer(List<PImage> images , String title){
-        this(images);
-        this.title = title;
-    }
 
-    public ImageViewer(List imgSet, boolean singleVolume){
 
-        if(singleVolume){
-            this.imgSet = imgSet;
-        }
-    }
+
 
     public ImageViewer(String path, String header, String format, String startIndex) throws Exception {
         this.path = path;
@@ -59,17 +51,18 @@ public class ImageViewer extends PApplet {
             throw new Exception("Invalid number format.");
         }
 
+    }
 
+    public ImageViewer(List<PImage> images, String title){
+        this(images);
+        this.title = title;
 
     }
 
 
-    public void settings() {
+    public void setup() {
         size(512, 512);
-        if(title != null){
-            surface.setTitle(title);
-        }
-
+        this.frame.setTitle(title);
 //        try {
 //            images = loadImages(path, "header", format, startIndex);
 //        } catch (Exception e) {
@@ -138,6 +131,12 @@ public class ImageViewer extends PApplet {
         ImageViewer instance = new ImageViewer(images);
         runSketch(appletArgs, instance);
 
+    }
+
+    public static void displayImage(List<PImage> images, String title){
+        String[] appletArgs = {"Processing"};
+        ImageViewer instance = new ImageViewer(images, title);
+        runSketch(appletArgs, instance);
     }
 
 
