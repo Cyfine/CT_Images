@@ -13,7 +13,10 @@ CT volume is a set of continuous images collected.
 In a single CT volume, the images should have same CT window. 
 Manually collected CT volume may have different CT window, which is caused by human error. The most general case is small clusters of images having mutate CT window in a CT volume, which can be identified by human eyes. (Those images here refer as "mutate CT images")
 
-## 2.  
+## 2. The Program designed 
+### 2.1 The methodology
+The differences of the CT window reflects on the average and standard deviation of the images (average of 
+image pixel grayscale value) also the gray level histogram. 
 
 
 
