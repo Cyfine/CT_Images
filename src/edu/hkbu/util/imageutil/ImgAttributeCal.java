@@ -79,6 +79,24 @@ public class ImgAttributeCal extends Thread {
         standDeviation = Math.sqrt(variance);
     }
 
+    /**
+     *
+     * @param image the input image
+     * @return the array with count of each gray scale level
+     */
+    public static int[] calHist(PImage image){
+        int[] hist = new int[256];
+        int grayScale;
+        int r,g,b;
+        for(int i = 0 ; i < image.pixels.length; i++){
+            r = red(image.pixels[i]);
+            g = green(image.pixels[i]);
+            b = blue(image.pixels[i]);
+            grayScale = rounding((r+ g+ b) /3);
+            hist[grayScale]++;
+        }
+        return hist;
+    }
 
     public void run() {
         calAttributes();
@@ -111,4 +129,9 @@ public class ImgAttributeCal extends Thread {
     protected static int blue(int rgb) {
         return rgb & 0xFF;
     }
+
+    public static  int rounding (double num){
+        return (int)(num +0.5);
+    }
+
 }

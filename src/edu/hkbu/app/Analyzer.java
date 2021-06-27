@@ -232,7 +232,6 @@ public class Analyzer extends Thread {
     }
 
 
-
     //========================= Helper Methods ==========================
 
     private static double average(List<Double> list) {
@@ -308,6 +307,8 @@ public class Analyzer extends Thread {
             System.out.println(list);
         }
     }
+
+
 
     public static void main(String[] args) throws Exception {
         List<PImage> images = loadImages("D:/Confidential_Data/CT_images/HEP00034", "Se2Im", "png", 6);

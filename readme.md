@@ -29,7 +29,7 @@ using the pixels' average and standard deviation, we are able to find the out-ra
 using above method may not be the images having mutate CT window. Another significant feature is whether of value (data
 point) in the border of the mutate cluster is relatively continuous with other images.
 
-The following step is taken:
+The following steps is taken:
 
 1. calculate the standard deviation inside the cluster.
 
