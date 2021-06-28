@@ -29,8 +29,7 @@ using the pixels' average and standard deviation, we are able to find the out-ra
 using above method may not be the images having mutate CT window. Another significant feature is whether of value (data
 point) in the border of the mutate cluster is relatively continuous with other images.
 
-The following steps is taken:
-
+Steps taken to judge whether the selected cluster is relatively continuous with other images:
 1. calculate the standard deviation inside the cluster.
 
 2. construct a confidence interval using the standard deviation and the border value. That is [border value +- sd]
@@ -51,8 +50,8 @@ see [Processing documentation](https://processing.org/reference/loadImage_.html)
 basically no limitation for Java version (jdk 1.8 or more), however, for jdk 1.8 on Linux, this program may not work
 properly due to other dependencies (The system-level dependencies used by the library).
 #### 2.2.2 Usage
-This program is designed with a command line user interface.
-Here are some usage for core command: 
+This program has a command line interface. Syntax of commands as follows: 
+##### load
 ```
 load [path] [header] [start index] [format]
 ```
