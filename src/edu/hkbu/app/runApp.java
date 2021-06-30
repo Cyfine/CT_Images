@@ -22,7 +22,7 @@ load D:/Confidential_Data/CT_images/HEP0001 Se2Im 30 jpg
 
 
 linux :
-load /home/carter/Pictures/Confidential_Data/CT_images/HEP0001 Se2Im 30 jpg
+load /home/carter/Pictures/Confidential_Data/CT_images/HEP0001/ Se2Im 30 jpg
  */
 public class runApp {
     private List<PImage> currentImages;
