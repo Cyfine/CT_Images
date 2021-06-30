@@ -39,6 +39,16 @@ public class ImageReader extends PApplet {
         readImages();
     }
 
+    public static List<PImage> loadImages(String path, String header, String format, int startIndex)
+            throws Exception {
+        ImageReader reader = new ImageReader(path, header, format, startIndex);
+        List<PImage> images = reader.getImages();
+        for (PImage image : images) {
+            image.loadPixels();
+        }
+        return images;
+    }
+
     private void validateFormat(String format) throws Exception {
         format = format.toLowerCase();
         switch (format) {
@@ -90,9 +100,9 @@ public class ImageReader extends PApplet {
                    */
                     imgName = header + prependZeroNum(cnt, minNumLength) + "." + format;
                     PImage img = loadImage(dataPath + '/' + imgName);
-                    if(img != null){
+                    if (img != null) {
                         System.out.println("Image loss detected");
-                        System.out.println("\""+header+  prependZeroNum(cnt-1, minNumLength) +"."+format + "\" not found");
+                        System.out.println("\"" + header + prependZeroNum(cnt - 1, minNumLength) + "." + format + "\" not found");
                         continue;
                     }
 

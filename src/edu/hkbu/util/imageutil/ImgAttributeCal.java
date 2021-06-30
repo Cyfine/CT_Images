@@ -27,7 +27,7 @@ public class ImgAttributeCal extends Thread {
         ImgAttributeCal[] threads = new ImgAttributeCal[images.size()];
         LinkedList<Double> standardDeviation = new LinkedList<>();
         LinkedList<Double> average = new LinkedList<>();
-        LinkedList<int[]>  histPlot =  new  LinkedList<>();
+        LinkedList<int[]> histPlot = new LinkedList<>();
 
         for (int i = 0; i < images.size(); i++) {
             threads[i] = new ImgAttributeCal(images.get(i));
@@ -80,19 +80,18 @@ public class ImgAttributeCal extends Thread {
     }
 
     /**
-     *
      * @param image the input image
      * @return the array with count of each gray scale level
      */
-    public static int[] calHist(PImage image){
+    public static int[] calHist(PImage image) {
         int[] hist = new int[256];
         int grayScale;
-        int r,g,b;
-        for(int i = 0 ; i < image.pixels.length; i++){
+        int r, g, b;
+        for (int i = 0; i < image.pixels.length; i++) {
             r = red(image.pixels[i]);
             g = green(image.pixels[i]);
             b = blue(image.pixels[i]);
-            grayScale = rounding((r+ g+ b) /3);
+            grayScale = rounding((r + g + b) / 3);
             hist[grayScale]++;
         }
         return hist;
@@ -130,8 +129,8 @@ public class ImgAttributeCal extends Thread {
         return rgb & 0xFF;
     }
 
-    public static  int rounding (double num){
-        return (int)(num +0.5);
+    public static int rounding(double num) {
+        return (int) (num + 0.5);
     }
 
 }

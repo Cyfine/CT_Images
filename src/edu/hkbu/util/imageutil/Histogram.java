@@ -33,11 +33,9 @@ import javax.swing.event.ChangeListener;
 
 
 /**
- *
  * @author
- *
  */
-public class Histogram extends JFrame implements ChangeListener, ActionListener{
+public class Histogram extends JFrame implements ChangeListener, ActionListener {
     /**
      * 头像界面的宽度
      */
@@ -70,16 +68,17 @@ public class Histogram extends JFrame implements ChangeListener, ActionListener{
     public static final String FRAMTITLE = "图像的灰度直方图";
     private String imgSrc;
     Image img;
-    JSlider jsliderH, jsliderV;	//水平和垂直滑块
+    JSlider jsliderH, jsliderV;    //水平和垂直滑块
     JPanel uP, picP, uplodP, histP;
     JButton openFile, histogram, threshold;
     MyCanvas canvas;
     Canvas histCanvas;
     int imgW = PWIDTH, imgH = PHEIGHT;
-    int xcentre = PWIDTH/2, ycentre = PHEIGHT/2;
-    private int dx1 = xcentre-imgW/2, dy1 = ycentre-imgH/2, dx2 = xcentre + imgW/2, dy2 = ycentre + imgH/2;
+    int xcentre = PWIDTH / 2, ycentre = PHEIGHT / 2;
+    private int dx1 = xcentre - imgW / 2, dy1 = ycentre - imgH / 2, dx2 = xcentre + imgW / 2, dy2 = ycentre + imgH / 2;
     private int sx1 = 0, sy1 = 0, sx2, sy2;
     private float shx = 0, shy = 0;
+
     /**
      * 构造函数
      */
@@ -90,11 +89,13 @@ public class Histogram extends JFrame implements ChangeListener, ActionListener{
 
     /**
      * 返回canvas
+     *
      * @return
      */
     public Canvas getCanvas() {
         return canvas;
     }
+
     /**
      * 界面设计
      */
@@ -106,13 +107,13 @@ public class Histogram extends JFrame implements ChangeListener, ActionListener{
         canvas = new MyCanvas();
         jsliderH = new JSlider();
         jsliderH.setMaximum(JS_MAXIMUM);
-        jsliderH.setValue(JS_MAXIMUM/2);
+        jsliderH.setValue(JS_MAXIMUM / 2);
         jsliderH.setMinimum(1);
         jsliderH.setOrientation(JSlider.HORIZONTAL);
         jsliderH.addChangeListener(this);
         jsliderV = new JSlider();
         jsliderV.setMaximum(JS_MAXIMUM);
-        jsliderV.setValue(JS_MAXIMUM/2);
+        jsliderV.setValue(JS_MAXIMUM / 2);
         jsliderV.setMinimum(1);
         jsliderV.setOrientation(JSlider.VERTICAL);
         jsliderV.addChangeListener(this);
@@ -167,33 +168,33 @@ public class Histogram extends JFrame implements ChangeListener, ActionListener{
             BufferedImage bfImg = ImageIO.read(new File(imgSrc));
             int w = bfImg.getWidth();
             int h = bfImg.getHeight();
-            int pix[] = new int[w*h];
+            int pix[] = new int[w * h];
             int hist[] = new int[256];
 
             int imgType = bfImg.getType();
             int temp;
             bfImg.getRGB(0, 0, w, h, pix, 0, w);
             ColorModel cm = ColorModel.getRGBdefault();
-            for(int i=0; i<pix.length; i++) {
+            for (int i = 0; i < pix.length; i++) {
 				/*for(int j=0; j<hist.length; j++) {
 					if(j ==  cm.getRed(pix[i])) {
 						hist[j] ++;
 					}
 				}*/
                 temp = cm.getRed(pix[i]);
-                hist[temp] ++;
+                hist[temp]++;
             }
             //System.out.println(hist.length);
 
             int max = 0;
-            for(int i=0; i<hist.length; i++) {
-                if(hist[i] > max) {
+            for (int i = 0; i < hist.length; i++) {
+                if (hist[i] > max) {
                     max = hist[i];
                 }
 
             }
-            for(int i=0; i<hist.length; i++) {
-                hist[i] = (int)(hist[i]/(float)max * 250);
+            for (int i = 0; i < hist.length; i++) {
+                hist[i] = (int) (hist[i] / (float) max * 250);
 				/*System.out.print(hist[i] + "\t");
 				if(i%10 == 0) {
 					System.out.println();
@@ -205,19 +206,19 @@ public class Histogram extends JFrame implements ChangeListener, ActionListener{
             Graphics g = histCanvas.getGraphics();
             Color c = g.getColor();
             g.setColor(Color.red);
-            g.drawLine(10, H_HEIGHT-10, H_WIDTH-30, H_HEIGHT-10);
-            g.drawLine(H_WIDTH-35, H_HEIGHT-15, H_WIDTH-30, H_HEIGHT-10);
-            g.drawLine(H_WIDTH-35, H_HEIGHT-5, H_WIDTH-30, H_HEIGHT-10);
-            g.drawString("灰度级", H_WIDTH-80, H_HEIGHT);
-            g.drawLine(10,  H_HEIGHT-10, 10, 10);
+            g.drawLine(10, H_HEIGHT - 10, H_WIDTH - 30, H_HEIGHT - 10);
+            g.drawLine(H_WIDTH - 35, H_HEIGHT - 15, H_WIDTH - 30, H_HEIGHT - 10);
+            g.drawLine(H_WIDTH - 35, H_HEIGHT - 5, H_WIDTH - 30, H_HEIGHT - 10);
+            g.drawString("灰度级", H_WIDTH - 80, H_HEIGHT);
+            g.drawLine(10, H_HEIGHT - 10, 10, 10);
             g.drawLine(5, 15, 10, 10);
             g.drawLine(15, 15, 10, 10);
             g.drawString("像素个数", 15, 15);
             g.setColor(Color.black);
-            for(int i=0; i<hist.length; i++) {
-                g.drawLine(10+i, H_HEIGHT-10, 10+i, H_HEIGHT-10-hist[i]);
-                if(i%30 == 0) {
-                    g.drawString(i+"", 10+i, H_HEIGHT);
+            for (int i = 0; i < hist.length; i++) {
+                g.drawLine(10 + i, H_HEIGHT - 10, 10 + i, H_HEIGHT - 10 - hist[i]);
+                if (i % 30 == 0) {
+                    g.drawString(i + "", 10 + i, H_HEIGHT);
                 }
             }
             g.setColor(c);
@@ -231,15 +232,15 @@ public class Histogram extends JFrame implements ChangeListener, ActionListener{
             BufferedImage bfImg = ImageIO.read(new File(imgSrc));
             int w = bfImg.getWidth();
             int h = bfImg.getHeight();
-            int pix[] = new int[w*h];
+            int pix[] = new int[w * h];
 
             int imgType = bfImg.getType();
             bfImg.getRGB(0, 0, w, h, pix, 0, w);
             int max = 0;
             ColorModel cm = ColorModel.getRGBdefault();
-            for(int i=0; i<pix.length; i++) {
-                if(cm.getRed(pix[i]) <= threshold) {
-                    pix[i] = new Color(255,255,255).getRGB();
+            for (int i = 0; i < pix.length; i++) {
+                if (cm.getRed(pix[i]) <= threshold) {
+                    pix[i] = new Color(255, 255, 255).getRGB();
                 } else {
                     pix[i] = new Color(0, 0, 0).getRGB();
                 }
@@ -263,54 +264,55 @@ public class Histogram extends JFrame implements ChangeListener, ActionListener{
      * 事件监听响应
      */
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == openFile) {
+        if (e.getSource() == openFile) {
             FileDialog openFileDialog = new FileDialog(this, "打开图片");
-            openFileDialog.setMode(FileDialog.LOAD);	//设置此对话框为从文件加载内容
-            openFileDialog.setFile("*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.tif;");		//设置可打开文件的类型为：.txt,.java
+            openFileDialog.setMode(FileDialog.LOAD);    //设置此对话框为从文件加载内容
+            openFileDialog.setFile("*.jpg;*.jpeg;*.gif;*.png;*.bmp;*.tif;");        //设置可打开文件的类型为：.txt,.java
 
             openFileDialog.setVisible(true);
             String fileName = openFileDialog.getFile();
             String directory = openFileDialog.getDirectory();
-            if(null != fileName) {
+            if (null != fileName) {
                 imgSrc = directory + fileName;
                 img = Toolkit.getDefaultToolkit().getImage(imgSrc);
                 histCanvas.repaint();
             } else {
                 JOptionPane.showMessageDialog(this, "您已经取消选择了，请重新选择!");
             }
-        } else if(e.getSource() == histogram) {
+        } else if (e.getSource() == histogram) {
             System.out.println(new Date());
             drawHistogram();
             System.out.println(new Date());
-        } else if(e.getSource() == threshold) {
+        } else if (e.getSource() == threshold) {
             threshold(65);
         }
     }
+
     /**
      * 滑动条滑动响应事件
      */
     public void stateChanged(ChangeEvent e) {
-        if(e.getSource() == jsliderH) {
+        if (e.getSource() == jsliderH) {
             float valueH = jsliderH.getValue();
-            imgW = (int)(2*PWIDTH*(valueH/JS_MAXIMUM));
-            if(imgW < PWIDTH/4) {
-                imgW = PWIDTH/4;
+            imgW = (int) (2 * PWIDTH * (valueH / JS_MAXIMUM));
+            if (imgW < PWIDTH / 4) {
+                imgW = PWIDTH / 4;
             }
-            dx1 = xcentre-imgW/2;
-            dy1 = ycentre-imgH/2;
-            dx2 = xcentre + imgW/2;
-            dy2 = ycentre + imgH/2;
+            dx1 = xcentre - imgW / 2;
+            dy1 = ycentre - imgH / 2;
+            dx2 = xcentre + imgW / 2;
+            dy2 = ycentre + imgH / 2;
             canvas.repaint();
-        } else if(e.getSource() == jsliderV) {
+        } else if (e.getSource() == jsliderV) {
             float valueV = jsliderV.getValue();
-            imgH = (int)(2*PHEIGHT*(valueV/JS_MAXIMUM));
-            if(imgH < PHEIGHT/4) {
-                imgH = PHEIGHT/4;
+            imgH = (int) (2 * PHEIGHT * (valueV / JS_MAXIMUM));
+            if (imgH < PHEIGHT / 4) {
+                imgH = PHEIGHT / 4;
             }
-            dx1 = xcentre-imgW/2;
-            dy1 = ycentre-imgH/2;
-            dx2 = xcentre + imgW/2;
-            dy2 = ycentre + imgH/2;
+            dx1 = xcentre - imgW / 2;
+            dy1 = ycentre - imgH / 2;
+            dx2 = xcentre + imgW / 2;
+            dy2 = ycentre + imgH / 2;
             canvas.repaint();
         }
     }
@@ -326,11 +328,12 @@ public class Histogram extends JFrame implements ChangeListener, ActionListener{
         public MyCanvas() {
 
         }
+
         public void paint(Graphics g) {
             Graphics2D g2 = (Graphics2D) g;
             //g.drawImage(img, xcentre-imgW/2, ycentre-imgH/2, imgW, imgH, this);
-            sx2  = img.getWidth(this);
-            sy2  = img.getHeight(this);
+            sx2 = img.getWidth(this);
+            sy2 = img.getHeight(this);
             g2.shear(shx, shy);
             g2.drawImage(img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, this);//Color.green,
         }

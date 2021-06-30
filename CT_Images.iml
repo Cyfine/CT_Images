@@ -13,5 +13,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="core" level="project" />
+    <orderEntry type="library" name="json-java" level="project" />
+    <orderEntry type="library" name="commons-io-2.10.0" level="project" />
   </component>
 </module>

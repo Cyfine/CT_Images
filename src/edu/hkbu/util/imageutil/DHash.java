@@ -141,7 +141,7 @@ public class DHash extends Thread {
                         float g = green(image.pixels[k * width + l]);
                         float b = blue(image.pixels[k * width + l]);
                         float greyScale = (r + g + b) / 3;
-                        if (greyScale == 255 ) {
+                        if (greyScale == 255) {
                             cnt++;
                         }
                     }
@@ -188,12 +188,12 @@ public class DHash extends Thread {
                         float g = green(image.pixels[k * width + l]);
                         float b = blue(image.pixels[k * width + l]);
                         float greyScale = (r + g + b) / 3;
-                       if(greyScale == 255){
-                           wCnt ++ ;
-                       }
-                       if(greyScale == 0){
-                           bCnt++;
-                       }
+                        if (greyScale == 255) {
+                            wCnt++;
+                        }
+                        if (greyScale == 0) {
+                            bCnt++;
+                        }
                     }
                 }
                 segmentAvg[i * (rowNum + 1) + j] = bCnt - wCnt;
@@ -258,7 +258,9 @@ public class DHash extends Thread {
         return (rgb >> 8) & 0xFF;
     }
 
-    /**0
+    /**
+     * 0
+     *
      * @param rgb composite RGB value
      * @return decomposed RGB blue value
      */

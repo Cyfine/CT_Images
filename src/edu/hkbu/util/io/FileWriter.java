@@ -11,17 +11,14 @@ public class FileWriter {
         try {
             PrintWriter writer = new PrintWriter(fName);
             writer.println("Average, Standard Deviation");
-            for(int i = 0 ; i < average.size(); i++){
+            for (int i = 0; i < average.size(); i++) {
                 writer.println(average.get(i) + ", " + standardDeviation.get(i));
             }
             writer.close();
-        }catch(FileNotFoundException e){
-            System.out.println("File "+ fName+ "not found");
+        } catch (FileNotFoundException e) {
+            System.out.println("File " + fName + "not found");
         }
     }
-
-
-
 
 
 }

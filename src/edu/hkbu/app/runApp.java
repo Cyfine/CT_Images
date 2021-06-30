@@ -88,9 +88,9 @@ public class runApp {
                     String format;
                     do {
                         System.out.println("Input the source images format:");
-                         format = in.nextLine();
+                        format = in.nextLine();
                     } while (format == null);
-                    images = loadImages(path, header, format, index);
+                    images = ImageReader.loadImages(path, header, format, index);
                     break;
                 case "hash":
                     if (images != null) {
@@ -215,7 +215,7 @@ public class runApp {
         }
         try {
             String volumePath = cmdArgs[1] + "/" + cmdArgs[2] + cmdArgs[3] + "." + cmdArgs[4];
-            currentImages = loadImages(cmdArgs[1], cmdArgs[2], cmdArgs[4], Integer.parseInt(cmdArgs[3]));
+            currentImages = ImageReader.loadImages(cmdArgs[1], cmdArgs[2], cmdArgs[4], Integer.parseInt(cmdArgs[3]));
             if (currentImages.size() == 0 || currentImages == null) {
                 return;
             }
@@ -228,9 +228,9 @@ public class runApp {
 
     private void show() throws Exception {
         if (imagesSet.size() != 0) {
-          for(Analyzer thread : threads ){
-              displayImage(thread.images, thread.path);
-          }
+            for (Analyzer thread : threads) {
+                displayImage(thread.images, thread.path);
+            }
         } else {
             throw new Exception("No images loaded yet.");
         }
@@ -286,7 +286,6 @@ public class runApp {
     }
 
     private void output(String[] cmdArgs) {
-
 
 
     }
@@ -359,16 +358,6 @@ public class runApp {
             else
                 System.out.println("]");
         }
-    }
-
-    protected static List<PImage> loadImages(String path, String header, String format, int startIndex)
-            throws Exception {
-        ImageReader reader = new ImageReader(path, header, format, startIndex);
-        List<PImage> images = reader.getImages();
-        for (PImage image : images) {
-            image.loadPixels();
-        }
-        return images;
     }
 
     private static List<Integer> adjacentHammingDist(List<int[]> hashes) {

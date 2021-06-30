@@ -30,6 +30,7 @@ using above method may not be the images having mutate CT window. Another signif
 point) in the border of the mutate cluster is relatively continuous with other images.
 
 Steps taken to judge whether the selected cluster is relatively continuous with other images:
+
 1. calculate the standard deviation inside the cluster.
 
 2. construct a confidence interval using the standard deviation and the border value. That is [border value +- sd]
@@ -49,19 +50,27 @@ loaded.
 see [Processing documentation](https://processing.org/reference/loadImage_.html) for loadImage() method). There is
 basically no limitation for Java version (jdk 1.8 or more), however, for jdk 1.8 on Linux, this program may not work
 properly due to other dependencies (The system-level dependencies used by the library).
+
 #### 2.2.2 Usage
-This program has a command line interface. Syntax of commands as follows: 
+
+This program has a command line interface. Syntax of commands as follows:
+
 ##### load
+
 ```
 load [path] [header] [start index] [format]
 ```
+
 For example,
+
 ```
 load ~/Pictures/CT_images/HEP0001 Se2Im 30 jpg
 ```
-The images within a CT volume have file name with same header and continuous indices, so the header and start index is used to 
-generate a series of filename and locate the CT-volume.
-##### 
+
+The images within a CT volume have file name with same header and continuous indices, so the header and start index is
+used to generate a series of filename and locate the CT-volume.
+
+#####  
 
 
 

@@ -21,7 +21,8 @@ import processing.core.*;
 
 import java.util.*;
 
-import static edu.hkbu.app.runApp.*;
+import static edu.hkbu.util.io.ImageReader.loadImages;
+
 
 public class Analyzer extends Thread {
     protected final List<PImage> images;
@@ -73,7 +74,7 @@ public class Analyzer extends Thread {
         mutateClusterSelect();
         clusterAnalysis();
         // printAttributes();
-//        FileWriter.outputAttribCSV("HEP00034_attrib.csv", attrib[0], attrib[1]);
+        // FileWriter.outputAttribCSV("HEP00034_attrib.csv", attrib[0], attrib[1]);
     }
 
 
@@ -307,7 +308,6 @@ public class Analyzer extends Thread {
             System.out.println(list);
         }
     }
-
 
 
     public static void main(String[] args) throws Exception {
