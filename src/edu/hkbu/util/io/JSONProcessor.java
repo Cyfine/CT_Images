@@ -14,8 +14,7 @@ public class JSONProcessor {
         try {
             String content = FileUtils.readFileToString(f, "UTF-8");
             JSONObject obj = new JSONObject(content);
-            CTag tag = new CTag(obj);
-            return tag;
+            return new CTag(obj);
         }catch(Exception e){
             if(e instanceof IOException){
                 System.out.println("Invalid directory for JSON file, check directory correctness.");
@@ -83,7 +82,7 @@ public class JSONProcessor {
 
             Shape(String label, String groupID, String shapeType, JSONArray points) {
                 this(label, groupID, shapeType);
-                int size = points.length();
+
 
                 int[][] result = new int[points.length()][2];
 
@@ -98,8 +97,6 @@ public class JSONProcessor {
 
 
             // getters
-
-
             public String getLabel() {
                 return label;
             }
