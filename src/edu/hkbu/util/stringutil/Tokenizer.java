@@ -4,13 +4,6 @@ import java.util.*;
 
 public class Tokenizer {
 
-    public static void main(String[] args) {
-        String test = "   For with you is the fountain  of   life";
-        String test1 = "For with you is the fountain  of   life  ";
-        String[] result = tokenize(test);
-        String[] result1 = tokenize(test1);
-    }
-
     public static String[] tokenize(String str) {
         StringBuilder sb = new StringBuilder();
 

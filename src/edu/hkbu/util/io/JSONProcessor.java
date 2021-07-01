@@ -10,21 +10,24 @@ import java.io.IOException;
 public class JSONProcessor {
 
 
-
-
-
     public static class CTag {
         public Shape shape;
         String imagePath;
-        String version ;
+        String version;
+        String absolutePath;
 
 
         //constructor
-        public CTag(JSONObject t){
+        public CTag(JSONObject t) {
             this.version = t.getString("version");
             this.imagePath = t.getString("imagePath");
             JSONObject s = t.getJSONArray("shapes").getJSONObject(0);
             this.shape = new Shape(s.getString("label"), s.getString("group_id"), s.getString("shape_type"), s.getJSONArray("points"));
+        }
+
+        public CTag(JSONObject t, String absolutePath) {
+            this(t);
+            this.absolutePath = absolutePath;
         }
 
 
@@ -52,6 +55,7 @@ public class JSONProcessor {
             int[][] points;
             String groupID;
             String shapeType;
+
             // constructor
             Shape(String label, String groupID, String shapeType) {
                 this.label = label;
@@ -75,6 +79,24 @@ public class JSONProcessor {
             }
 
 
+            // getters
+
+
+            public String getLabel() {
+                return label;
+            }
+
+            public int[][] getPoints() {
+                return points;
+            }
+
+            public String getGroupID() {
+                return groupID;
+            }
+
+            public String getShapeType() {
+                return shapeType;
+            }
         }
 
 

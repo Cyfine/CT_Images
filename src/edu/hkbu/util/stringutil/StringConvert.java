@@ -1,8 +1,6 @@
 package edu.hkbu.util.stringutil;
 
-import java.util.Locale;
-
-public class StringSearch {
+public class StringConvert {
 
     public static boolean containsIgnoreCase(String tar, String str) {
         tar = tar.toLowerCase();

@@ -13,7 +13,7 @@ import edu.hkbu.util.imageutil.ImgAttributeCal;
 
 
 import static edu.hkbu.util.imageutil.ImageViewer.*;
-import static edu.hkbu.util.stringutil.StringSearch.*;
+import static edu.hkbu.util.stringutil.StringConvert.*;
 
 
 /*
