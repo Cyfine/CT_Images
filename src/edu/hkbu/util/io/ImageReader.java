@@ -3,13 +3,14 @@
  * Processing 3 do not allow loadImages outside setup()
  * which will fail in loading
  */
-
 package edu.hkbu.util.io;
 
-import java.util.*;
-import java.util.List;
+import edu.hkbu.util.stringutil.StringUtils;
+import processing.core.PApplet;
+import processing.core.PImage;
 
-import processing.core.*;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ImageReader extends PApplet {
 
@@ -84,7 +85,7 @@ public class ImageReader extends PApplet {
 
         for (; ; ) {
 
-            imgName = header + prependZeroNum(cnt++, minNumLength) + "." + format;
+            imgName = header + StringUtils.prependZeroNum(cnt++, minNumLength) + "." + format;
             PImage newImage = loadImage(dataPath + '/' + imgName);
             if (newImage == null) {
                 if (init) {
@@ -98,11 +99,11 @@ public class ImageReader extends PApplet {
                    But there exist discontinuous image index, skip an index to see if there is any image within a
                    CT volume exists
                    */
-                    imgName = header + prependZeroNum(cnt, minNumLength) + "." + format;
+                    imgName = header + StringUtils.prependZeroNum(cnt, minNumLength) + "." + format;
                     PImage img = loadImage(dataPath + '/' + imgName);
                     if (img != null) {
                         System.out.println("Image loss detected");
-                        System.out.println("\"" + header + prependZeroNum(cnt - 1, minNumLength) + "." + format + "\" not found");
+                        System.out.println("\"" + header + StringUtils.prependZeroNum(cnt - 1, minNumLength) + "." + format + "\" not found");
                         continue;
                     }
 
@@ -119,20 +120,6 @@ public class ImageReader extends PApplet {
             init = false;
 
         }
-    }
-
-    public static String prependZeroNum(int num, int strLength) {
-        String str = "" + num;
-        int strLen = str.length();
-        StringBuffer sb = null;
-        while (strLen < strLength) {
-            sb = new StringBuffer();
-            sb.append("0").append(str);
-            // sb.append(str).append("0");
-            str = sb.toString();
-            strLen = str.length();
-        }
-        return str;
     }
 
 

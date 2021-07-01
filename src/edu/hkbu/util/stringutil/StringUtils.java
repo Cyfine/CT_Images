@@ -55,4 +55,17 @@ public class StringUtils {
         return c > 47 && c < 58;
     }
 
+    public static String prependZeroNum(int num, int strLength) {
+        String str = "" + num;
+        int strLen = str.length();
+        StringBuffer sb = null;
+        while (strLen < strLength) {
+            sb = new StringBuffer();
+            sb.append("0").append(str);
+            // sb.append(str).append("0");
+            str = sb.toString();
+            strLen = str.length();
+        }
+        return str;
+    }
 }
