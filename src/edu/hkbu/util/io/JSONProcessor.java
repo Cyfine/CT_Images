@@ -9,6 +9,24 @@ import java.io.IOException;
 
 public class JSONProcessor {
 
+    public static CTag getImgTag(String directory) throws IOException {
+        File f = new File(directory);
+        try {
+            String content = FileUtils.readFileToString(f, "UTF-8");
+            JSONObject obj = new JSONObject(content);
+            CTag tag = new CTag(obj);
+            return tag;
+        }catch(Exception e){
+            if(e instanceof IOException){
+                System.out.println("Invalid directory for JSON file, check directory correctness.");
+            }else if(e instanceof  JSONException){
+                System.out.println("Unsupported JSON content, requires LabelMe JSON for CT images");
+            }else{
+                System.out.println("Error occurs when loading JSON tags");
+            }
+        }
+        return null;
+    }
 
     public static class CTag {
         public Shape shape;
