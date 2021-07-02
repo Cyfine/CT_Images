@@ -98,7 +98,6 @@ public class StringUtils {
             public int compare(String o1, String o2) {
                 int n1 = extractNum(o1).get(0);
                 int n2 = extractNum(o2).get(0);
-
                 return n1 - n2;
             }
         });
