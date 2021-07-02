@@ -1,5 +1,6 @@
 package edu.hkbu.util.stringutil;
 
+import java.io.File;
 import java.util.*;
 
 public class StringUtils {
@@ -47,6 +48,9 @@ public class StringUtils {
             }
 
         }
+        if(result.size() ==0){
+            result.add(-1);
+        }
         return result;
     }
 
@@ -92,14 +96,37 @@ public class StringUtils {
         }
     }
 
-    public void strSort(String[] str) {
-        Arrays.sort(str, new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                int n1 = extractNum(o1).get(0);
-                int n2 = extractNum(o2).get(0);
-                return n1 - n2;
-            }
+
+    public static void strSort(String[] str, int k) {
+        Arrays.sort(str, (o1, o2) -> {
+            int n1 = extractNum(o1).get(k);
+            int n2 = extractNum(o2).get(k);
+
+            return n1 - n2;
         });
+    }
+
+    public static void main(String[]args){
+        File f = new File("/home/carter/Pictures/Confidential_Data/CT_images");
+        File [] files = f.listFiles();
+        LinkedList<String> fileList = new LinkedList<>();
+        for(File file: files){
+            if(file.isDirectory()){
+                fileList.add(file.getName());
+            }
+        }
+
+        fileList.sort((o1,o2) ->{
+            int n1 = extractNum(o1).get(0);
+            int n2 = extractNum(o2).get(0);
+            return n1 - n2;
+        });
+
+
+
+//        strSort(fileName, 1);
+        for(String str : fileList){
+            System.out.println(str);
+        }
     }
 }
