@@ -28,6 +28,7 @@ public class runApp {
     private List<PImage> currentImages;
     private List<List<PImage>> imagesSet = new LinkedList<>();
     private List<Analyzer> threads = new LinkedList<>();
+    private List<FileReader.CT_Volume> volumes = new LinkedList<>();
     private int lastProcessThreadIdx = -1;
 
     public static void main_0(String[] args) throws Exception {

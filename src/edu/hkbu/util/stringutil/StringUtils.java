@@ -79,29 +79,10 @@ public class StringUtils {
      *            all the numbers in a List
      * @param k   kth position in the list is used to sort the Strings
      */
-    public void strIdxSort(String[] str, int k) {
-        List<Integer> list;
-        String collideIdentifier = "^&*%^&";
-        String[] temp = new String[str.length];
-        System.arraycopy(str, 0, temp, 0, str.length);
-        List<Integer> separateChain = new LinkedList<>();
-        HashMap<Integer, String> map = new HashMap<>();
-        String tmp;
-        for (int i = 0; i < str.length; i++) {
-            list = extractNum(str[i]);
-            tmp = map.put(list.get(k), str[i]);
-            if (tmp != null) {
-                separateChain.add(i - 1); // indicate the index of element that has hash collision
-            }
-        }
-    }
-
-
     public static void strSort(String[] str, int k) {
         Arrays.sort(str, (o1, o2) -> {
             int n1 = extractNum(o1).get(k);
             int n2 = extractNum(o2).get(k);
-
             return n1 - n2;
         });
     }
