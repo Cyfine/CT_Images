@@ -35,6 +35,8 @@ public class FileReader {
      */
     public static class CT_Volume{
         List<PImage> images ;
-        List<>
+        JSONProcessor.CTag tag;
+
+
     }
 }
