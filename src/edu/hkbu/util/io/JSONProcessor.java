@@ -1,17 +1,22 @@
 package edu.hkbu.util.io;
 
-import org.json.*;
 import org.apache.commons.io.FileUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 
 
 public class JSONProcessor {
 
     public static CTag getImgTag(String directory) throws IOException {
         File f = new File(directory);
+        return getImgTag(f);
+    }
+
+    public static CTag getImgTag(File f) {
         try {
             String content = FileUtils.readFileToString(f, "UTF-8");
             JSONObject obj = new JSONObject(content);
@@ -119,7 +124,8 @@ public class JSONProcessor {
 
 
     public static void main(String[] args) throws IOException {
-        CTag tag = getImgTag("/home/carter/Pictures/Confidential_Data/CT_images/HEP0001/Se3Im48.json");
+//        CTag tag = getImgTag("/home/carter/Pictures/Confidential_Data/CT_images/HEP0001/Se3Im48.json");
+        CTag tag = getImgTag("D:/Confidential_Data/CT_images/HEP0001/Se3Im48.json");
 
     }
 
