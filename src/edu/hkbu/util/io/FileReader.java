@@ -26,8 +26,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import static edu.hkbu.util.io.JSONProcessor.*;
-
+import static edu.hkbu.util.io.JSONProcessor.CTag;
 import static edu.hkbu.util.stringutil.StringUtils.extractNum;
 import static org.apache.commons.io.FilenameUtils.getExtension;
 
@@ -77,7 +76,16 @@ public class FileReader {
                     tags.add(new CTag(new JSONObject(file.getAbsolutePath())));
                 }
             }
+
+            HashMap<Integer, List<File>> map = separateVolumeIdx(imgFile);
+
+            for(Integer i : map.keySet()){
+
+            }
+
         }
+
+
 
 
     }
@@ -101,8 +109,36 @@ public class FileReader {
         }
 
         return map;
-
     }
+
+    /**
+     * separate different file type by the file extension
+     *
+     * @param files a List of files may contains different types of files
+     * @return a Hash map which key is the certain file type (String of file extension), and each key binding
+     * a list that contains all the files have the file type of its key
+     */
+    public HashMap<String, List<File>>separateFileType(List<File> files){
+        HashMap<String, List<File>> map = new HashMap<>();
+
+        String fName;
+        String typ;
+        for(File file : files){
+            typ = getExtension(file.getName());
+
+            if(map.containsKey(typ)){
+                map.get(typ).add(file);
+            }else{
+                List<File>  newList = new LinkedList<>();
+                newList.add(file);
+                map.put(typ, newList);
+            }
+        }
+
+        return map;
+    }
+
+
 
 
 
