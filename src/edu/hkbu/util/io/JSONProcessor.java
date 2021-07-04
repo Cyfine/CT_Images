@@ -36,9 +36,13 @@ public class JSONProcessor {
 
     public static class CTag {
         public Shape shape;
+
+
+
         String imagePath;
         String version;
         String absolutePath;
+
 
 
         //constructor
@@ -67,6 +71,15 @@ public class JSONProcessor {
 
         String getShapeType() {
             return shape.shapeType;
+
+        }
+
+        public String getImagePath() {
+            return imagePath;
+        }
+
+        public void  setAbsolutePath(String absPath){
+            absolutePath = absPath;
         }
 
 
