@@ -17,11 +17,14 @@ CT_images (refer as master directory)
  */
 package edu.hkbu.util.io;
 
+import org.apache.commons.io.FileUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 import processing.core.PApplet;
 import processing.core.PImage;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 import static edu.hkbu.util.io.JSONProcessor.CTag;
@@ -32,17 +35,19 @@ public class FileReader extends PApplet {
 
 
     private final List<File> directories;
-    private List<CT_Volume> volumes = new LinkedList<>();
+    private final List<CT_Volume> VOLUMES = new LinkedList<>();
 
     public static void main(String[] args) {
-        FileReader reader = new FileReader("D:\\Confidential_Data\\CT_images");
-        for (File f : reader.directories) {
-            System.out.println(f.getName());
-        }
+        List<CT_Volume> volumes = getCTVolume("D:\\Confidential_Data\\CT_Images");
+    }
+
+    public static List<CT_Volume> getCTVolume(String masterDir) {
+        FileReader reader = new FileReader(masterDir);
+        return reader.VOLUMES;
     }
 
     public List<CT_Volume> getCTVolume() {
-        return volumes;
+        return VOLUMES;
     }
 
     public FileReader(String dir) {
@@ -52,29 +57,55 @@ public class FileReader extends PApplet {
         directories = new LinkedList<>();
 
 
-        for (File f : files) {
-            if (f.isDirectory()) {
-                directories.add(f);
+        try {
+            for (File f : files) {
+                if (f.isDirectory()) {
+                    directories.add(f);
+                }
             }
+        } catch (NullPointerException e) {
+            System.out.println("Invalid directory, check file directory correctness.");
         }
         directories.sort(Comparator.comparingInt(o -> extractNum(o.getName()).get(0)));
         // sort the File in ascending order
+        getVolumes();
     }
 
     public void getVolumes() {
         for (File folder : directories) {
 
+            System.out.printf("Loading from folder %s\n", folder.getName());
+
             File[] f = folder.listFiles();
             List<File> imgFile = new LinkedList<>(); // contains all file in the folder, folder may contains multiple volumes
             List<List<File>> volumes = new LinkedList<>();
             List<CTag> tags = new LinkedList<>();
+            String fName = "";
 
-            for (File file : f) {
-                if (getExtension(file.getName()).equals("png") || getExtension(file.getName()).equals("jpg")) {
-                    imgFile.add(file);
-                } else if (getExtension(file.getName()).equals("json")) {
-                    tags.add(new CTag(new JSONObject(file.getAbsolutePath())));
+            try {
+                for (File file : f) {
+
+                    if (getExtension(file.getName()).equals("png") || getExtension(file.getName()).equals("jpg")) {
+                        imgFile.add(file);
+                    } else if (getExtension(file.getName()).equals("json")) {
+                        try {
+                            fName = file.getName();
+                            String content = FileUtils.readFileToString(file, "UTF-8");
+                            tags.add(new CTag(new JSONObject(content)));
+                        } catch (JSONException e) {
+                            System.out.printf("Invalid JSON file %s.\n", fName);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
+            } catch (NullPointerException e) {
+                System.out.printf("Empty directory %s\n", folder.getName());
+            }
+
+            if (imgFile.size() == 0) {
+                System.out.printf("Folder %s do not contains CT volume\n", folder.getName());
+                continue;
             }
 
             HashMap<Integer, List<File>> map = separateVolumeIdx(imgFile);
@@ -89,7 +120,7 @@ public class FileReader extends PApplet {
                     // add it to the volumes list
                 } else {
                     for (String j : formatMap.keySet()) {
-                        volumes.add(formatMap.get(i));
+                        volumes.add(formatMap.get(j));
                     }
                 }
             }
@@ -98,7 +129,9 @@ public class FileReader extends PApplet {
             int volumes_size = volumes.size();
             for (int i = 0; i < volumes_size; i++) {
                 vol = volumes.get(i);
-                vol.sort(Comparator.comparingInt((o) -> extractNum(o.getName()).get(1)));
+
+                vol.sort(Comparator.comparingInt((o) -> extractNum(o.getName(),1)));
+
 
                 //there may be volume that having the same group index but
                 // belongs to different volume
@@ -109,7 +142,9 @@ public class FileReader extends PApplet {
                 }
             }
 
-            this.volumes.addAll(parseCT_Volume(volumes, tags));
+            int tagSize = tags.size();
+            this.VOLUMES.addAll(parseCT_Volume(volumes, tags));
+            System.out.printf("Total %d volumes and %d tags loaded from folder %s\n\n", volumes.size(), tagSize, folder.getName());
         }
 
 
@@ -146,7 +181,6 @@ public class FileReader extends PApplet {
     public HashMap<String, List<File>> separateFileType(List<File> files) {
         HashMap<String, List<File>> map = new HashMap<>();
 
-        String fName;
         String typ;
         for (File file : files) {
             typ = getExtension(file.getName());
@@ -170,13 +204,23 @@ public class FileReader extends PApplet {
         List<List<File>> volumes = new LinkedList<>();
         List<File> currentList = new LinkedList<>();
         volumes.add(currentList);
+        boolean existInvalidVolume = false ;
 
+
+        currentList.add(files.get(0));
         int currentIdx;
-        int prevIdx = extractNum(files.get(0).getName()).get(1);
+        int prevIdx = extractNum(files.get(0).getName(),1);
+        if(prevIdx == -1) {
+            System.out.printf("Image %s has void image index, images with void image index will be ignored.\n", files.get(0).getName());
+            existInvalidVolume = true;
+        }
+
         File currentFile;
         for (int i = 1; i < files.size(); i++) {
             currentFile = files.get(i);
-            currentIdx = extractNum(currentFile.getName()).get(1);
+            currentIdx = extractNum(currentFile.getName(),1);
+
+
             if (currentIdx - prevIdx > 1) {
                 if (currentIdx - prevIdx == 2) {
                     // the gap between noncontinuous image cluster is two should be considered
@@ -184,10 +228,10 @@ public class FileReader extends PApplet {
                     String fName = currentFile.getName();
                     String idxStr = "" + currentIdx;
                     int lastIdx = fName.lastIndexOf(idxStr);
-                    String header = fName.substring(0, lastIdx - 1);
+                    String header = fName.substring(0, lastIdx);
                     String extension = fName.substring(lastIdx + idxStr.length());
                     String lossName = header + (currentIdx - 1) + extension;
-                    System.out.println("Image loss detected, image " + lossName + " not found.");
+                    System.out.println("Image loss detected, " + lossName + " not found.");
 
                 } else {
                     currentList = new LinkedList<>();
@@ -195,6 +239,10 @@ public class FileReader extends PApplet {
                 }
             }
             currentList.add(currentFile);
+            prevIdx = currentIdx;
+        }
+        if(existInvalidVolume){
+            volumes.remove(0);
         }
         return volumes;
 
@@ -237,23 +285,20 @@ public class FileReader extends PApplet {
      */
     public static class CT_Volume {
         List<PImage> images;
-        List<CTag> tags = new LinkedList<>();
+        List<CTag> tags;
         String parentPath;
         String startImageName; // name of the first image in the CT volume
         String endImageName;
 
         public CT_Volume(String parentPath, String startImageName, String endImageName, List<PImage> images) {
-            this.images = new LinkedList<PImage>();
+            this.images = new LinkedList<>();
             this.tags = new LinkedList<>();
             this.parentPath = parentPath;
             this.startImageName = startImageName;
             this.endImageName = endImageName;
+            this.images = images;
         }
 
-
-        void addTag(CTag tag) {
-            tags.add(tag);
-        }
 
         void addTag(Collection<CTag> c) {
             tags.addAll(c);

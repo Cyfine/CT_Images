@@ -1,19 +1,19 @@
 package edu.hkbu.app;
 
-import java.util.*;
-
-import processing.core.*;
-import edu.hkbu.util.io.*;
-
-import static edu.hkbu.util.io.FileWriter.*;
-import static edu.hkbu.util.stringutil.Tokenizer.*;
-
 import edu.hkbu.util.imageutil.DHash;
 import edu.hkbu.util.imageutil.ImgAttributeCal;
+import edu.hkbu.util.io.FileReader;
+import edu.hkbu.util.io.ImageReader;
+import processing.core.PImage;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Scanner;
 
-import static edu.hkbu.util.imageutil.ImageViewer.*;
-import static edu.hkbu.util.stringutil.StringUtils.*;
+import static edu.hkbu.util.imageutil.ImageViewer.displayImage;
+import static edu.hkbu.util.io.FileWriter.outputAttribCSV;
+import static edu.hkbu.util.stringutil.StringUtils.containsIgnoreCase;
+import static edu.hkbu.util.stringutil.Tokenizer.tokenize;
 
 
 /*

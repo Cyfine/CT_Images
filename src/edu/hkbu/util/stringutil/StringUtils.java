@@ -54,6 +54,16 @@ public class StringUtils {
         return result;
     }
 
+    public static int extractNum(String str, int index){
+        List<Integer> result = extractNum(str);
+        if(result.size() < index + 1){
+            return -1 ;
+        }else{
+            return result.get(index);
+        }
+
+    }
+
     private static boolean isNum(char c) {
         return c > 47 && c < 58;
     }
@@ -87,7 +97,28 @@ public class StringUtils {
         });
     }
 
-    public static void main(String[]args){
+    // some of the console tricks
+    public static void printlnRed(String str) {
+        System.out.println("\033[31m" + str);
+    }
+
+    public static void printlnGreen(String str) {
+        System.out.println("\033[32m" + str);
+    }
+
+    public static void printRed(String str){
+        System.out.print("\033[31m" + str);
+    }
+
+    public static void printGreen(String str){
+        System.out.print("\033[32m" + str);
+    }
+
+    public static void main(String [] args){
+        printlnGreen("Testing");
+    }
+
+    public static void main0(String[]args){
         File f = new File("/home/carter/Pictures/Confidential_Data/CT_images");
         File [] files = f.listFiles();
         LinkedList<String> fileList = new LinkedList<>();
