@@ -74,80 +74,97 @@ public class FileReader extends PApplet {
     public void getVolumes() {
         for (File folder : directories) {
 
-            System.out.printf("Loading from folder %s\n", folder.getName());
-
-            File[] f = folder.listFiles();
-            List<File> imgFile = new LinkedList<>(); // contains all file in the folder, folder may contains multiple volumes
-            List<List<File>> volumes = new LinkedList<>();
-            List<CTag> tags = new LinkedList<>();
-            String fName = "";
-
-            try {
-                for (File file : f) {
-
-                    if (getExtension(file.getName()).equals("png") || getExtension(file.getName()).equals("jpg")) {
-                        imgFile.add(file);
-                    } else if (getExtension(file.getName()).equals("json")) {
-                        try {
-                            fName = file.getName();
-                            String content = FileUtils.readFileToString(file, "UTF-8");
-                            tags.add(new CTag(new JSONObject(content)));
-                        } catch (JSONException e) {
-                            System.out.printf("Invalid JSON file %s.\n", fName);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            } catch (NullPointerException e) {
-                System.out.printf("Empty directory %s\n", folder.getName());
-            }
-
-            if (imgFile.size() == 0) {
-                System.out.printf("Folder %s do not contains CT volume\n", folder.getName());
-                continue;
-            }
-
-            HashMap<Integer, List<File>> map = separateVolumeIdx(imgFile);
-
-            List<File> currentVolume;
-            for (Integer i : map.keySet()) {
-                currentVolume = map.get(i);
-                HashMap<String, List<File>> formatMap = separateFileType(currentVolume);
-                if (formatMap.keySet().size() == 1) {
-                    volumes.add(currentVolume);
-                    // if the file in the list is homogeneous type, its has only a single volume
-                    // add it to the volumes list
-                } else {
-                    for (String j : formatMap.keySet()) {
-                        volumes.add(formatMap.get(j));
-                    }
-                }
-            }
-
-            List<File> vol;
-            int volumes_size = volumes.size();
-            for (int i = 0; i < volumes_size; i++) {
-                vol = volumes.get(i);
-
-                vol.sort(Comparator.comparingInt((o) -> extractNum(o.getName(),1)));
-
-
-                //there may be volume that having the same group index but
-                // belongs to different volume
-                List<List<File>> subVolumes = separateFileIndex(vol);
-                if (subVolumes.size() > 1) {
-                    volumes.set(i, subVolumes.remove(0));
-                    volumes.addAll(subVolumes);
-                }
-            }
-
-            int tagSize = tags.size();
-            this.VOLUMES.addAll(parseCT_Volume(volumes, tags));
-            System.out.printf("Total %d volumes and %d tags loaded from folder %s\n\n", volumes.size(), tagSize, folder.getName());
+            loadVolumeFromFolder(folder);
         }
 
 
+    }
+
+
+    private void loadVolumeFromFolder(File folder) {
+        System.out.printf("Loading from folder %s\n", folder.getName());
+
+        File[] f = folder.listFiles();
+        List<File> imgFile = new LinkedList<>(); // contains all file in the folder, folder may contains multiple volumes
+        List<List<File>> volumes = new LinkedList<>();
+        List<CTag> tags = new LinkedList<>();
+        String fName = "";
+
+        try {
+            for (File file : f) {
+
+                if (getExtension(file.getName()).equals("png") || getExtension(file.getName()).equals("jpg")) {
+                    imgFile.add(file);
+                } else if (getExtension(file.getName()).equals("json")) {
+                    try {
+                        fName = file.getName();
+                        String content = FileUtils.readFileToString(file, "UTF-8");
+                        tags.add(new CTag(new JSONObject(content)));
+                    } catch (JSONException e) {
+                        System.out.printf("Invalid JSON file %s.\n", fName);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } catch (NullPointerException e) {
+            System.out.printf("Empty directory %s\n", folder.getName());
+        }
+
+        if (imgFile.size() == 0) {
+            System.out.printf("Folder %s do not contains CT volume\n", folder.getName());
+            return;
+        }
+
+        HashMap<Integer, List<File>> map = separateVolumeIdx(imgFile);
+
+        List<File> currentVolume;
+        for (Integer i : map.keySet()) {
+            currentVolume = map.get(i);
+            HashMap<String, List<File>> formatMap = separateFileType(currentVolume);
+            if (formatMap.keySet().size() == 1) {
+                volumes.add(currentVolume);
+                // if the file in the list is homogeneous type, its has only a single volume
+                // add it to the volumes list
+            } else {
+                for (String j : formatMap.keySet()) {
+                    volumes.add(formatMap.get(j));
+                }
+            }
+        }
+
+        List<File> vol;
+        int volumes_size = volumes.size();
+        for (int i = 0; i < volumes_size; i++) {
+            vol = volumes.get(i);
+
+            vol.sort(Comparator.comparingInt((o) -> extractNum(o.getName(),1)));
+
+
+            //there may be volume that having the same group index but
+            // belongs to different volume
+            List<List<File>> subVolumes = separateFileIndex(vol);
+            if (subVolumes.size() > 1) {
+                volumes.set(i, subVolumes.remove(0));
+                volumes.addAll(subVolumes);
+            }
+        }
+
+        int tagSize = tags.size();
+        this.VOLUMES.addAll(parseCT_Volume(volumes, tags));
+
+        String vs = "";
+        String ts = "";
+        if(volumes.size() > 1){
+            vs = "s";
+        }
+
+        if(tagSize > 1){
+            ts = "s";
+        }
+
+        System.out.printf("Total %d volume%s and %d tag%s loaded from folder %s\n\n", volumes.size(), vs, tagSize, ts, folder.getName());
+        System.gc();
     }
 
     public HashMap<Integer, List<File>> separateVolumeIdx(List<File> imgFile) {
