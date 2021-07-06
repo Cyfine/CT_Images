@@ -17,6 +17,7 @@ CT_images (refer as master directory)
  */
 package edu.hkbu.util.io;
 
+import edu.hkbu.app.Analyzer;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -68,14 +69,28 @@ public class FileReader extends PApplet {
         }
         directories.sort(Comparator.comparingInt(o -> extractNum(o.getName()).get(0)));
         // sort the File in ascending order
-        getVolumes();
+
+            getVolumes();
+
     }
 
     public void getVolumes() {
+        int folderCnt = 0 ;
         for (File folder : directories) {
-
-            loadVolumeFromFolder(folder);
+                folderCnt++;
+            try {
+                loadVolumeFromFolder(folder);
+            } catch (OutOfMemoryError e) {
+                System.out.println("Load too many images a time, exceed maximum heap size of JVM.");
+                System.out.println("Try to set larger heap size for JVM.");
+                System.out.printf("Last processed folder %s, %d folders failed to load. ",
+                      folder.getName(), directories.size() - folderCnt);
+                System.out.println("Program terminated.");
+                System.exit(-1);
+                break;
+            }
         }
+        System.out.printf("Total %d volumes in %d folders loaded to the memory.\n",  VOLUMES.size(), folderCnt);
 
 
     }
@@ -162,6 +177,7 @@ public class FileReader extends PApplet {
         if(tagSize > 1){
             ts = "s";
         }
+
 
         System.out.printf("Total %d volume%s and %d tag%s loaded from folder %s\n\n", volumes.size(), vs, tagSize, ts, folder.getName());
         System.gc();
@@ -301,8 +317,12 @@ public class FileReader extends PApplet {
     Object
      */
     public static class CT_Volume {
+
+
         List<PImage> images;
         List<CTag> tags;
+        Analyzer analyzer = null;
+
         String parentPath;
         String startImageName; // name of the first image in the CT volume
         String endImageName;
@@ -316,10 +336,20 @@ public class FileReader extends PApplet {
             this.images = images;
         }
 
+        public String toString(){
+            return  parentPath + " " + startImageName + "~" + endImageName;
+        }
+
+
 
         void addTag(Collection<CTag> c) {
             tags.addAll(c);
         }
-
+        public List<PImage> getImages() {
+            return images;
+        }
+        public void linkAnalyzer(Analyzer analyzer){
+            this.analyzer =analyzer;
+        }
     }
 }

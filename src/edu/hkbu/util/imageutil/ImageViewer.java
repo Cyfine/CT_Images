@@ -6,6 +6,7 @@ or passing the essential arguments to the constructor and load images it self.
  */
 package edu.hkbu.util.imageutil;
 
+import edu.hkbu.util.io.FileReader;
 import edu.hkbu.util.io.ImageReader;
 import processing.core.*;
 
@@ -14,7 +15,7 @@ import java.util.*;
 import static edu.hkbu.util.imageutil.DHash.dHashing;
 
 public class ImageViewer extends PApplet {
-
+    private FileReader.CT_Volume volume;
     private List<PImage> images = new LinkedList<PImage>();
     private PImage currentImage;
     private Scanner in = new Scanner(System.in);
@@ -119,8 +120,40 @@ public class ImageViewer extends PApplet {
                 hist[bright]++;
             }
         }
+        printArray(hist);
+        printArray(sig(sig2(hist)));
         return hist;
     }
+
+    void printArray(int[] arr) {
+        System.out.print("[");
+        for (int i = 0; i < arr.length; i++) {
+            System.out.print(arr[i]);
+            if (i != arr.length - 1) {
+                System.out.print(", ");
+            } else {
+                System.out.println("]");
+            }
+        }
+    }
+
+     int[] sig (int [] arr){
+        int[] result =  new int[arr.length -1];
+        for(int i = 1; i < arr.length; i++ ){
+            result[i-1] = Integer.signum(arr[i] - arr[i-1]);
+        }
+        return  result;
+    }
+
+
+    int[] sig2 (int [] arr){
+        int[] result =  new int[arr.length -1];
+        for(int i = 1; i < arr.length; i++ ){
+            result[i-1] =arr[i] - arr[i-1];
+        }
+        return  result;
+    }
+
 
     public void showHashKey(int[] hash) {
 

@@ -73,8 +73,9 @@ public class ImageReader extends PApplet {
      * A set of images in the directory with structured filename will be loaded to the program
      * For example, {img_01, img_02}, The header of the image file is "img_"
      *
-     * @return List contains the image set, ordered by the index in the file name.
+     *
      */
+    @Deprecated
     private void readImages() {
         images = new LinkedList<PImage>();
         String imgName;
@@ -129,15 +130,8 @@ public class ImageReader extends PApplet {
         reader.main(appletArgs);
     }
 
-    public String format() {
-        return format.toString();
-    }
-
     public List<PImage> getImages() {
         return images;
     }
 
-    public enum ImgFormat {
-        png, jpg, jpeg, gif, tga
-    }
 }
