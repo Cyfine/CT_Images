@@ -196,13 +196,13 @@ public class runApp {
         }
         if (cmdArgs.length == 1) {
             for (Analyzer thread : threads) {
-                System.out.println(thread.path);
+                System.out.println(thread.volume);
             }
             System.out.println("Total " + threads.size() + " results");
         } else if (cmdArgs.length == 2) {
             List<Analyzer> result = search(cmdArgs[1]);
             for (Analyzer thread : result) {
-                System.out.println(thread.path);
+                System.out.println(thread.volume);
             }
             System.out.println("Total " + result.size() + " results");
 
@@ -217,7 +217,7 @@ public class runApp {
     private List<Analyzer> search(String keyword) {
         List<Analyzer> result = new LinkedList<>();
         for (Analyzer thread : threads) {
-            if (containsIgnoreCase(keyword, thread.path)) {
+            if (containsIgnoreCase(keyword, thread.volume.toString())) {
                 result.add(thread);
             }
         }

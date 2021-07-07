@@ -40,7 +40,7 @@ public class Analyzer extends Thread {
     // clusters.get(0) is the mutate clusters selected using average
     // clusters.get(1) is the mutate clusters selected using standard deviation.
 
-    protected String path = null;
+
     // file path is indicate the CT volume when printing result if there are multiple CT volumes
     // loaded into the program.
 
@@ -300,9 +300,8 @@ public class Analyzer extends Thread {
     }
 
     void printAttributes() {
-        if (path != null) {
-            System.out.println("File path: " + path);
-        }
+
+        System.out.println(volume);
         System.out.println("Average of images averages:" + imgAvg_avg);
         System.out.println("Standard deviation of images averages:" + imgAvg_sd);
         System.out.println("Cluster (Avg)" + clusters.get(0));

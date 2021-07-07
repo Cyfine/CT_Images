@@ -8,9 +8,13 @@ package edu.hkbu.util.imageutil;
 
 import edu.hkbu.util.io.FileReader;
 import edu.hkbu.util.io.ImageReader;
-import processing.core.*;
+import processing.core.PApplet;
+import processing.core.PImage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Scanner;
 
 import static edu.hkbu.util.imageutil.DHash.dHashing;
 
@@ -20,7 +24,6 @@ public class ImageViewer extends PApplet {
     private PImage currentImage;
     private Scanner in = new Scanner(System.in);
     private int imgIndex = 0;
-    private boolean singleVolume;
     private List imgSet;
     private List<int[]> dHash;
 
@@ -36,12 +39,12 @@ public class ImageViewer extends PApplet {
     boolean hash_init = true;
 
 
+
     public ImageViewer(List<PImage> images) {
         List<PImage> newList = new ArrayList<PImage>();
         for (PImage img : images) {
             newList.add(img);
         }
-        singleVolume = true;
         this.images = newList;
     }
 
@@ -66,8 +69,9 @@ public class ImageViewer extends PApplet {
 
 
     public void setup() {
-        size(1024, 512);
+        size(1024, 512 +25);
         this.frame.setTitle(title);
+        frameRate(15);
 //        try {
 //            images = loadImages(path, "header", format, startIndex);
 //        } catch (Exception e) {
@@ -108,9 +112,15 @@ public class ImageViewer extends PApplet {
             showHashKey(dHash.get(imgIndex));
             popMatrix();
         }
+        textButton(10, 532, "dHashKey", 25, () -> hashKey = !hashKey);
+
+
+
 
         noLoop();
     }
+
+
 
     public int[] calHist(PImage img) {
         int[] hist = new int[256];
@@ -137,21 +147,21 @@ public class ImageViewer extends PApplet {
         }
     }
 
-     int[] sig (int [] arr){
-        int[] result =  new int[arr.length -1];
-        for(int i = 1; i < arr.length; i++ ){
-            result[i-1] = Integer.signum(arr[i] - arr[i-1]);
+    int[] sig(int[] arr) {
+        int[] result = new int[arr.length - 1];
+        for (int i = 1; i < arr.length; i++) {
+            result[i - 1] = Integer.signum(arr[i] - arr[i - 1]);
         }
-        return  result;
+        return result;
     }
 
 
-    int[] sig2 (int [] arr){
-        int[] result =  new int[arr.length -1];
-        for(int i = 1; i < arr.length; i++ ){
-            result[i-1] =arr[i] - arr[i-1];
+    int[] sig2(int[] arr) {
+        int[] result = new int[arr.length - 1];
+        for (int i = 1; i < arr.length; i++) {
+            result[i - 1] = arr[i] - arr[i - 1];
         }
-        return  result;
+        return result;
     }
 
 
@@ -261,6 +271,40 @@ public class ImageViewer extends PApplet {
         ImageViewer instance = new ImageViewer(path, header, format, index);
         runSketch(appletArgs, instance);
     }
+
+
+    public void textButton(int x , int y , String name , int textSize,  ButtonAction exe){
+        textSize(textSize);
+        fill(0,255,0);
+
+        if(mouseListener(x, y, textSize*name.length(), textSize)){
+            fill(255,0,0);
+            if(mousePressed){
+                exe.execute();
+            }
+        }
+        text(name, x, y);
+    }
+
+    public void mousePressed(){
+        loop();
+    }
+
+    public void mouseReleased(){
+        loop();
+    }
+
+    public boolean mouseListener(int x, int y, int width, int height) {
+        return(mouseX > x && mouseX < x + width && mouseY > y - height && y > mouseY);
+    }
+
+
+    @FunctionalInterface
+    public interface ButtonAction {
+        void execute();
+    }
+
+
 
 
 }
