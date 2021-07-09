@@ -6,55 +6,38 @@ or passing the essential arguments to the constructor and load images it self.
  */
 package edu.hkbu.util.imageutil;
 
-import edu.hkbu.util.io.ImageReader;
-import processing.core.*;
+import edu.hkbu.util.io.FileReader;
+import processing.core.PApplet;
+import processing.core.PImage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Scanner;
 
 import static edu.hkbu.util.imageutil.DHash.dHashing;
 
 public class ImageViewer extends PApplet {
-
+    private FileReader.CT_Volume volume;
     private List<PImage> images = new LinkedList<PImage>();
     private PImage currentImage;
     private Scanner in = new Scanner(System.in);
     private int imgIndex = 0;
-    private boolean singleVolume;
     private List imgSet;
     private List<int[]> dHash;
 
-    //class variable used to load images itself
-    private String path;
-    private String header;
-    private String format;
-    private int startIndex;
     private String title;
     boolean hist = false;
     boolean hashKey = false;
 
     boolean hash_init = true;
 
-
     public ImageViewer(List<PImage> images) {
         List<PImage> newList = new ArrayList<PImage>();
         for (PImage img : images) {
             newList.add(img);
         }
-        singleVolume = true;
         this.images = newList;
-    }
-
-
-    public ImageViewer(String path, String header, String format, String startIndex) throws Exception {
-        this.path = path;
-        this.header = header;
-        this.format = format;
-        try {
-            this.startIndex = Integer.parseInt(startIndex);
-        } catch (NumberFormatException e) {
-            throw new Exception("Invalid number format.");
-        }
-
     }
 
     public ImageViewer(List<PImage> images, String title) {
@@ -63,19 +46,20 @@ public class ImageViewer extends PApplet {
 
     }
 
-
     public void setup() {
-        size(1024, 512);
+        size(1024, 512 + 25);
         this.frame.setTitle(title);
-//        try {
-//            images = loadImages(path, "header", format, startIndex);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        frameRate(15);
+
+        // try {
+        // images = loadImages(path, "header", format, startIndex);
+        // } catch (Exception e) {
+        // e.printStackTrace();
+        // }
     }
 
     public void draw() {
-        background(255);
+        background(43 ,43 ,43);
         currentImage = images.get(imgIndex);
         image(currentImage, 0, 0);
         fill(255);
@@ -108,6 +92,14 @@ public class ImageViewer extends PApplet {
             popMatrix();
         }
 
+        textButton(10, 532, "dHashKey", 25, () -> hashKey = !hashKey);
+        textButton(10, 532, "dHashKey", 25, new ButtonAction() {
+            @Override
+            public void execute() {
+
+            }
+        });
+
         noLoop();
     }
 
@@ -119,7 +111,37 @@ public class ImageViewer extends PApplet {
                 hist[bright]++;
             }
         }
+        printArray(hist);
+        printArray(sig(sig2(hist)));
         return hist;
+    }
+
+    void printArray(int[] arr) {
+        System.out.print("[");
+        for (int i = 0; i < arr.length; i++) {
+            System.out.print(arr[i]);
+            if (i != arr.length - 1) {
+                System.out.print(", ");
+            } else {
+                System.out.println("]");
+            }
+        }
+    }
+
+    int[] sig(int[] arr) {
+        int[] result = new int[arr.length - 1];
+        for (int i = 1; i < arr.length; i++) {
+            result[i - 1] = Integer.signum(arr[i] - arr[i - 1]);
+        }
+        return result;
+    }
+
+    int[] sig2(int[] arr) {
+        int[] result = new int[arr.length - 1];
+        for (int i = 1; i < arr.length; i++) {
+            result[i - 1] = arr[i] - arr[i - 1];
+        }
+        return result;
     }
 
     public void showHashKey(int[] hash) {
@@ -137,9 +159,7 @@ public class ImageViewer extends PApplet {
         }
     }
 
-
     public void hist(PImage img, int[] hist) {
-
 
         // Find the largest value in the histogram
         int histMax = 4000;
@@ -177,7 +197,6 @@ public class ImageViewer extends PApplet {
             hashKey = !hashKey;
         }
 
-
     }
 
     private void polarize(PImage image) {
@@ -196,38 +215,48 @@ public class ImageViewer extends PApplet {
         }
     }
 
-
-    private static List<PImage> loadImages(String path, String header, String format, int startIndex) throws
-            Exception {
-        ImageReader reader = new ImageReader(path, header, format, startIndex);
-        List<PImage> images = reader.getImages();
-        for (PImage image : images) {
-            image.loadPixels();
-        }
-        return images;
-    }
-
-
     public static void displayImage(List<PImage> images) {
 
-        String[] appletArgs = {"Processing"};
+        String[] appletArgs = { "Processing" };
         ImageViewer instance = new ImageViewer(images);
         runSketch(appletArgs, instance);
 
     }
 
     public static void displayImage(List<PImage> images, String title) {
-        String[] appletArgs = {"Processing"};
+        String[] appletArgs = { "Processing" };
         ImageViewer instance = new ImageViewer(images, title);
         runSketch(appletArgs, instance);
     }
 
+    public void textButton(int x, int y, String name, int textSize, ButtonAction exe) {
+        textSize(textSize);
+        fill(165, 179, 194);
 
-    public static void displayImage(String path, String header, String format, String index) throws Exception {
-        String[] appletArgs = {"Processing"};
-        ImageViewer instance = new ImageViewer(path, header, format, index);
-        runSketch(appletArgs, instance);
+        if (mouseListener(x, y, textSize * name.length(), textSize)) {
+            if (mousePressed) {
+                exe.execute();
+            }
+        }
+        text(name, x, y);
     }
 
+    public void mousePressed() {
+        loop();
+    }
+
+    public void mouseReleased() {
+        loop();
+    }
+
+
+    public boolean mouseListener(int x, int y, int width, int height) {
+        return (mouseX > x && mouseX < x + width && mouseY > y - height && y > mouseY);
+    }
+
+    @FunctionalInterface
+    public interface ButtonAction {
+        void execute();
+    }
 
 }

@@ -17,15 +17,16 @@ package edu.hkbu.app;
 
 
 import edu.hkbu.util.imageutil.ImgAttributeCal;
-import processing.core.*;
+import edu.hkbu.util.io.FileReader;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
-import static edu.hkbu.util.io.ImageReader.loadImages;
+import static edu.hkbu.util.io.FileReader.CT_Volume;
 
 
 public class Analyzer extends Thread {
-    protected final List<PImage> images;
+    protected  CT_Volume volume;
     protected List[] attrib = new List[2]; // [0] for average, [1] for standard deviation
     protected List<int[]> histPlot;
     protected double imgAvg_avg; // the average of "image pixel averages"
@@ -39,9 +40,10 @@ public class Analyzer extends Thread {
     // clusters.get(0) is the mutate clusters selected using average
     // clusters.get(1) is the mutate clusters selected using standard deviation.
 
-    protected String path = null;
-    // file path is indicate the CT volume when printing result if there are multiple CT volumnes
+
+    // file path is indicate the CT volume when printing result if there are multiple CT volumes
     // loaded into the program.
+
 
 
     //========================= Constructors =============================
@@ -51,26 +53,34 @@ public class Analyzer extends Thread {
      * <p>
      * Each analyzer instance contains a single CT volume
      *
-     * @param images images in the CT volume
+     * @param volume a CT volume object that encapsulate essential information of a CT_volume
+     * @see FileReader
+     *
      */
-    public Analyzer(List<PImage> images) throws InterruptedException {
-        this.images = images;
+    public Analyzer(CT_Volume volume)  {
+        this.volume = volume;
+        volume.linkAnalyzer(this);
         avg_mutateCluster = new LinkedList<>();
         sd_mutateCluster = new LinkedList<>();
-        List[] result = ImgAttributeCal.calAttribute(images);
-        attrib[0] = result[0];
-        attrib[1] = result[1];
-        histPlot = result[2];
+
     }
 
-    public Analyzer(List<PImage> images, String path) throws InterruptedException {
-        this(images);
-        this.path = path;
-    }
+
 
 
     //======================= thread execution ==========================
-    public void run() {
+    public void run()   {
+        List[] result = new List[0];
+
+        try {
+            result = ImgAttributeCal.calAttribute(volume.getImages());
+        } catch (InterruptedException e) {
+         System.out.println("Thread execution interrupted");
+        }
+
+        attrib[0] = result[0];
+        attrib[1] = result[1];
+        histPlot = result[2];
         mutateClusterSelect();
         clusterAnalysis();
         // printAttributes();
@@ -290,9 +300,8 @@ public class Analyzer extends Thread {
     }
 
     void printAttributes() {
-        if (path != null) {
-            System.out.println("File path: " + path);
-        }
+
+        System.out.println(volume);
         System.out.println("Average of images averages:" + imgAvg_avg);
         System.out.println("Standard deviation of images averages:" + imgAvg_sd);
         System.out.println("Cluster (Avg)" + clusters.get(0));
@@ -310,15 +319,6 @@ public class Analyzer extends Thread {
     }
 
 
-    public static void main(String[] args) throws Exception {
-        List<PImage> images = loadImages("D:/Confidential_Data/CT_images/HEP00034", "Se2Im", "png", 6);
-        Analyzer test = new Analyzer(images);
-        test.start();
-        test.join();
-        List<List<List<Integer>>> tst = test.clusters;
-        System.out.println(tst.get(0));
-        System.out.println(tst.get(1));
-    }
 
 }
 

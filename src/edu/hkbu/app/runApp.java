@@ -1,17 +1,15 @@
 package edu.hkbu.app;
 
 import edu.hkbu.util.imageutil.DHash;
-import edu.hkbu.util.imageutil.ImgAttributeCal;
+import edu.hkbu.util.imageutil.ImageViewerNEO;
 import edu.hkbu.util.io.FileReader;
-import edu.hkbu.util.io.ImageReader;
-import processing.core.PImage;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
 import static edu.hkbu.util.imageutil.ImageViewer.displayImage;
-import static edu.hkbu.util.io.FileWriter.outputAttribCSV;
+import static edu.hkbu.util.io.FileReader.getCTVolume;
 import static edu.hkbu.util.stringutil.StringUtils.containsIgnoreCase;
 import static edu.hkbu.util.stringutil.Tokenizer.tokenize;
 
@@ -25,124 +23,14 @@ linux :
 load /home/carter/Pictures/Confidential_Data/CT_images/HEP0001/ Se2Im 30 jpg
  */
 public class runApp {
-    private List<PImage> currentImages;
-    private List<List<PImage>> imagesSet = new LinkedList<>();
+
+
     private List<Analyzer> threads = new LinkedList<>();
-    private List<FileReader.CT_Volume> volumes = new LinkedList<>();
+    private List<FileReader.CT_Volume> volumes;
     private int lastProcessThreadIdx = -1;
 
-    public static void main_0(String[] args) throws Exception {
-        // List<PImage> images = loadImages("C:/Users/30421/Desktop/test", "test_",
-        // ImgFormat.jpg, 1);
-        //
-        // List<int[]> hashValues = dHashing(images);
-        // System.out.println(DHash.hammingDistance(hashValues.get(6),
-        // hashValues.get(7)));
-        // System.out.println(DHash.similarity(hashValues.get(6), hashValues.get(7)));
-        List<PImage> images = null;
-        List<int[]> hashValues = null;
-        List<Integer> adjHammingDist = null;
-        List<Double> adjSimilarity = null;
-        List<Double> standardDeviation = null;
-        List<Double> average = null;
-        String command;
-        Scanner in = new Scanner(System.in);
-        boolean exit = false;
-        while (!exit) {
 
-            boolean validCmd;
-            do {
-                System.out.print("Ready>");
-                command = in.nextLine().trim().toLowerCase();
-                validCmd = command.length() != 0;
-            } while (!validCmd);
-            switch (command) {
-                case "exit":
-                    System.out.println("Exit program, goodbye.");
-                    exit = true;
-                    break;
-                case "load":
-                    System.out.println("Input path of image set:");
-                    System.out.print("Path>");
-                    String path = in.nextLine().trim();
-                    System.out.println("Input header of image files:");
-                    System.out.print("Header>");
-                    String header = in.nextLine();
 
-                    boolean valid;
-                    int index = 1;
-                    do {
-                        try {
-                            valid = true;
-                            System.out.println("Input the start index of images:");
-                            System.out.print("Index>");
-                            index = in.nextInt();
-                            in.nextLine();
-                            System.out.println();
-                        } catch (Exception e) {
-                            valid = false;
-                            System.out.println();
-                            in.nextLine();
-                        }
-                    } while (!valid); // Keep asking user to input if the user input is invalid.
-
-                    String format;
-                    do {
-                        System.out.println("Input the source images format:");
-                        format = in.nextLine();
-                    } while (format == null);
-                    images = ImageReader.loadImages(path, header, format, index);
-                    break;
-                case "hash":
-                    if (images != null) {
-                        hashValues = DHash.dHashing(images);
-                        adjHammingDist = adjacentHammingDist(hashValues);
-                        adjSimilarity = adjacentSimilarity(hashValues);
-
-                        printHashes(hashValues);
-                        printAttributes(adjHammingDist, adjSimilarity);
-                    } else {
-                        System.out.println("No images loaded, load images first.");
-                    }
-                    break;
-
-                case "print":
-                    if (hashValues != null) {
-                        printHashes(hashValues);
-                        printAttributes(adjHammingDist, adjSimilarity);
-                    } else {
-                        System.out.println("No images loaded yet. Load images first.");
-                    }
-                    break;
-                case "attrib":
-                    if (images != null) {
-                        List[] result = ImgAttributeCal.calAttribute(images);
-                        standardDeviation = result[1];
-                        average = result[0];
-                        System.out.println("Average of images: " + average);
-                        System.out.println("Standard deviation of images: " + standardDeviation);
-                    } else {
-                        System.out.println("No images loaded yet. Load images first.");
-                    }
-
-                    break;
-                case "output":
-                    if (average != null && standardDeviation != null)
-                        outputAttribCSV("attrib.csv", average, standardDeviation);
-                    break;
-                case "analyze":
-                    Analyzer thread = new Analyzer(images);
-                    thread.start();
-                    thread.join();
-                    break;
-                case "display":
-                    displayImage(images);
-                default:
-                    System.out.println("Invalid command");
-            }
-
-        }
-    }
 
     public static void main(String[] args) {
         new runApp().start();
@@ -175,9 +63,9 @@ public class runApp {
                         list(cmdArgs);
                     case "dHash":
                         break;
-                    case "test":
-                        main_0(new String[]{"main"});
-                        break;
+//                    case "test":
+//                        main_0(new String[]{"main"});
+//                        break;
                     case "output":
                         output(cmdArgs);
                         break;
@@ -210,36 +98,55 @@ public class runApp {
     }
 
     // =========================== Commands ===================================
-    private void load(String[] cmdArgs) throws Exception {
-        if (cmdArgs.length != 5) {
+//    private void load(String[] cmdArgs) throws Exception {
+//        if (cmdArgs.length != 5) {
+//            throw new Exception("Invalid number of arguments");
+//        }
+//        try {
+//            String volumePath = cmdArgs[1] + "/" + cmdArgs[2] + cmdArgs[3] + "." + cmdArgs[4];
+//            currentImages = ImageReader.loadImages(cmdArgs[1], cmdArgs[2], cmdArgs[4], Integer.parseInt(cmdArgs[3]));
+//            if (currentImages.size() == 0 || currentImages == null) {
+//                return;
+//            }
+//            imagesSet.add(currentImages);
+//            threads.add(new Analyzer(currentImages, volumePath));
+//        } catch (NumberFormatException e) {
+//            throw new Exception("Invalid number format");
+//        }
+//    }
+
+
+    private void load(String [] cmdArgs) throws Exception {
+        if(cmdArgs.length != 2){
             throw new Exception("Invalid number of arguments");
         }
-        try {
-            String volumePath = cmdArgs[1] + "/" + cmdArgs[2] + cmdArgs[3] + "." + cmdArgs[4];
-            currentImages = ImageReader.loadImages(cmdArgs[1], cmdArgs[2], cmdArgs[4], Integer.parseInt(cmdArgs[3]));
-            if (currentImages.size() == 0 || currentImages == null) {
-                return;
-            }
-            imagesSet.add(currentImages);
-            threads.add(new Analyzer(currentImages, volumePath));
-        } catch (NumberFormatException e) {
-            throw new Exception("Invalid number format");
+       volumes=  getCTVolume(cmdArgs[1]);
+        for(FileReader.CT_Volume volume : volumes){
+            threads.add(new Analyzer(volume));
         }
+        System.gc();
     }
 
-    private void show() throws Exception {
-        if (imagesSet.size() != 0) {
+    @Deprecated
+    private void showOld() throws Exception {
+        if (volumes != null) {
             for (Analyzer thread : threads) {
-                displayImage(thread.images, thread.path);
+                displayImage(thread.volume.getImages(), thread.volume.toString());
             }
         } else {
             throw new Exception("No images loaded yet.");
         }
     }
 
+    public void show() throws Exception
+    {
+        if(volumes != null){
+            ImageViewerNEO.showVolumes(volumes);
+        }
+    }
 
     private void analyze() throws Exception {
-        if (currentImages == null) {
+        if (volumes == null) {
             throw new Exception("No images loaded yet.");
         }
 
@@ -297,13 +204,13 @@ public class runApp {
         }
         if (cmdArgs.length == 1) {
             for (Analyzer thread : threads) {
-                System.out.println(thread.path);
+                System.out.println(thread.volume);
             }
             System.out.println("Total " + threads.size() + " results");
         } else if (cmdArgs.length == 2) {
             List<Analyzer> result = search(cmdArgs[1]);
             for (Analyzer thread : result) {
-                System.out.println(thread.path);
+                System.out.println(thread.volume);
             }
             System.out.println("Total " + result.size() + " results");
 
@@ -318,7 +225,7 @@ public class runApp {
     private List<Analyzer> search(String keyword) {
         List<Analyzer> result = new LinkedList<>();
         for (Analyzer thread : threads) {
-            if (containsIgnoreCase(keyword, thread.path)) {
+            if (containsIgnoreCase(keyword, thread.volume.toString())) {
                 result.add(thread);
             }
         }
