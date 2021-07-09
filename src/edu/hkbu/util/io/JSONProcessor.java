@@ -38,11 +38,9 @@ public class JSONProcessor {
         public Shape shape;
 
 
-
         String imagePath;
         String version;
         String absolutePath;
-
 
 
         //constructor
@@ -78,7 +76,7 @@ public class JSONProcessor {
             return imagePath;
         }
 
-        public void  setAbsolutePath(String absPath){
+        public void setAbsolutePath(String absPath) {
             absolutePath = absPath;
         }
 

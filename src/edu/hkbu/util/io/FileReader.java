@@ -34,7 +34,6 @@ import static edu.hkbu.util.stringutil.StringUtils.extractNum;
 
 public class FileReader extends PApplet {
 
-
     private final List<File> directories;
     private final List<CT_Volume> VOLUMES = new LinkedList<>();
 
@@ -166,7 +165,7 @@ public class FileReader extends PApplet {
         }
 
         int tagSize = tags.size();
-        this.VOLUMES.addAll(parseCT_Volume(volumes, tags));
+//        this.VOLUMES.addAll(parseCT_Volume(volumes, tags));
 
         String vs = "";
         String ts = "";
@@ -303,7 +302,7 @@ public class FileReader extends PApplet {
                 }
             }
 
-            CT_Volume newVol = new CT_Volume(volume.get(0).getParent(), volume.get(0).getName(),
+            CT_Volume newVol = new CT_Volume(volume.get(0).getParentFile().getName(), volume.get(0).getName(),
                     volume.get(volume.size() - 1).getName(), images);
             newVol.addTag(temp);
             result.add(newVol);

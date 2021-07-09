@@ -1,6 +1,7 @@
 package edu.hkbu.app;
 
 import edu.hkbu.util.imageutil.DHash;
+import edu.hkbu.util.imageutil.ImageViewerNEO;
 import edu.hkbu.util.io.FileReader;
 
 import java.util.LinkedList;
@@ -126,7 +127,8 @@ public class runApp {
         System.gc();
     }
 
-    private void show() throws Exception {
+    @Deprecated
+    private void showOld() throws Exception {
         if (volumes != null) {
             for (Analyzer thread : threads) {
                 displayImage(thread.volume.getImages(), thread.volume.toString());
@@ -136,6 +138,12 @@ public class runApp {
         }
     }
 
+    public void show() throws Exception
+    {
+        if(volumes != null){
+            ImageViewerNEO.showVolumes(volumes);
+        }
+    }
 
     private void analyze() throws Exception {
         if (volumes == null) {
