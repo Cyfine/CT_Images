@@ -31,7 +31,6 @@ import java.util.*;
 import static edu.hkbu.util.io.JSONProcessor.CTag;
 import static edu.hkbu.util.stringutil.StringUtils.extractNum;
 
-
 public class FileReader extends PApplet {
 
     private final List<File> directories;
@@ -56,7 +55,6 @@ public class FileReader extends PApplet {
         File[] files = masterFile.listFiles();
         directories = new LinkedList<>();
 
-
         try {
             for (File f : files) {
                 if (f.isDirectory()) {
@@ -69,37 +67,36 @@ public class FileReader extends PApplet {
         directories.sort(Comparator.comparingInt(o -> extractNum(o.getName()).get(0)));
         // sort the File in ascending order
 
-            getVolumes();
+        getVolumes();
 
     }
 
     public void getVolumes() {
-        int folderCnt = 0 ;
+        int folderCnt = 0;
         for (File folder : directories) {
-                folderCnt++;
+            folderCnt++;
             try {
                 loadVolumeFromFolder(folder);
             } catch (OutOfMemoryError e) {
                 System.out.println("Load too many images a time, exceed maximum heap size of JVM.");
                 System.out.println("Try to set larger heap size for JVM.");
-                System.out.printf("Last processed folder %s, %d folders failed to load. ",
-                      folder.getName(), directories.size() - folderCnt);
+                System.out.printf("Last processed folder %s, %d folders failed to load. ", folder.getName(),
+                        directories.size() - folderCnt);
                 System.out.println("Program terminated.");
                 System.exit(-1);
                 break;
             }
         }
-        System.out.printf("Total %d volumes in %d folders loaded to the memory.\n",  VOLUMES.size(), folderCnt);
-
+        System.out.printf("Total %d volumes in %d folders loaded to the memory.\n", VOLUMES.size(), folderCnt);
 
     }
-
 
     private void loadVolumeFromFolder(File folder) {
         System.out.printf("Loading from folder %s\n", folder.getName());
 
         File[] f = folder.listFiles();
-        List<File> imgFile = new LinkedList<>(); // contains all file in the folder, folder may contains multiple volumes
+        List<File> imgFile = new LinkedList<>(); // contains all file in the folder, folder may contains multiple
+                                                 // volumes
         List<List<File>> volumes = new LinkedList<>();
         List<CTag> tags = new LinkedList<>();
         String fName = "";
@@ -152,10 +149,9 @@ public class FileReader extends PApplet {
         for (int i = 0; i < volumes_size; i++) {
             vol = volumes.get(i);
 
-            vol.sort(Comparator.comparingInt((o) -> extractNum(o.getName(),1)));
+            vol.sort(Comparator.comparingInt((o) -> extractNum(o.getName(), 1)));
 
-
-            //there may be volume that having the same group index but
+            // there may be volume that having the same group index but
             // belongs to different volume
             List<List<File>> subVolumes = separateFileIndex(vol);
             if (subVolumes.size() > 1) {
@@ -169,16 +165,16 @@ public class FileReader extends PApplet {
 
         String vs = "";
         String ts = "";
-        if(volumes.size() > 1){
+        if (volumes.size() > 1) {
             vs = "s";
         }
 
-        if(tagSize > 1){
+        if (tagSize > 1) {
             ts = "s";
         }
 
-
-        System.out.printf("Total %d volume%s and %d tag%s loaded from folder %s\n\n", volumes.size(), vs, tagSize, ts, folder.getName());
+        System.out.printf("Total %d volume%s and %d tag%s loaded from folder %s\n\n", volumes.size(), vs, tagSize, ts,
+                folder.getName());
         System.gc();
     }
 
@@ -207,8 +203,9 @@ public class FileReader extends PApplet {
      * separate different file type by the file extension
      *
      * @param files a List of files may contains different types of files
-     * @return a Hash map which key is the certain file type (String of file extension), and each key binding
-     * a list that contains all the files have the file type of its key
+     * @return a Hash map which key is the certain file type (String of file
+     *         extension), and each key binding a list that contains all the files
+     *         have the file type of its key
      */
     public HashMap<String, List<File>> separateFileType(List<File> files) {
         HashMap<String, List<File>> map = new HashMap<>();
@@ -236,22 +233,21 @@ public class FileReader extends PApplet {
         List<List<File>> volumes = new LinkedList<>();
         List<File> currentList = new LinkedList<>();
         volumes.add(currentList);
-        boolean existInvalidVolume = false ;
-
+        boolean existInvalidVolume = false;
 
         currentList.add(files.get(0));
         int currentIdx;
-        int prevIdx = extractNum(files.get(0).getName(),1);
-        if(prevIdx == -1) {
-            System.out.printf("Image %s has void image index, images with void image index will be ignored.\n", files.get(0).getName());
+        int prevIdx = extractNum(files.get(0).getName(), 1);
+        if (prevIdx == -1) {
+            System.out.printf("Image %s has void image index, images with void image index will be ignored.\n",
+                    files.get(0).getName());
             existInvalidVolume = true;
         }
 
         File currentFile;
         for (int i = 1; i < files.size(); i++) {
             currentFile = files.get(i);
-            currentIdx = extractNum(currentFile.getName(),1);
-
+            currentIdx = extractNum(currentFile.getName(), 1);
 
             if (currentIdx - prevIdx > 1) {
                 if (currentIdx - prevIdx == 2) {
@@ -273,7 +269,7 @@ public class FileReader extends PApplet {
             currentList.add(currentFile);
             prevIdx = currentIdx;
         }
-        if(existInvalidVolume){
+        if (existInvalidVolume) {
             volumes.remove(0);
         }
         return volumes;
@@ -312,16 +308,15 @@ public class FileReader extends PApplet {
     }
 
     /*
-    The inner class CT_Volume, to encapsulate essential information of a CT_volume in a single
-    Object
+     * The inner class CT_Volume, to encapsulate essential information of a
+     * CT_volume in a single Object
      */
     public static class CT_Volume {
 
-
-        List<PImage> images;
-        List<CTag> tags;
-        Analyzer analyzer = null;
-        List<File> imageFile = null;
+        private List<PImage> images;
+        private List<CTag> tags;
+        private Analyzer analyzer = null;
+        private List<File> imageFile = null;
 
         String parentPath;
         String startImageName; // name of the first image in the CT volume
@@ -336,33 +331,37 @@ public class FileReader extends PApplet {
             this.images = images;
         }
 
-        public CT_Volume(String parentPath, String startImageName, String endImageName, List<PImage> images, List<File> imageFile){
+        public CT_Volume(String parentPath, String startImageName, String endImageName, List<PImage> images,
+                List<File> imageFile) {
             this(parentPath, startImageName, endImageName, images);
             this.imageFile = imageFile;
         }
 
-
-
-        public String toString(){
-            return  parentPath + " " + startImageName + "~" + endImageName;
+        public String toString() {
+            return parentPath + " " + startImageName + "~" + endImageName;
         }
 
+        //getters
         public List<File> getImageFile() {
             return imageFile;
         }
 
-        public String  getImageName(int index){
-            return  imageFile.get(index).getName();
-        }
-
-        void addTag(Collection<CTag> c) {
-            tags.addAll(c);
-        }
         public List<PImage> getImages() {
             return images;
         }
-        public void linkAnalyzer(Analyzer analyzer){
-            this.analyzer =analyzer;
+
+        public String getImageName(int index) {
+            return imageFile.get(index).getName();
+        }
+
+        //setters
+        void addTag(Collection<CTag> c) {
+            tags.addAll(c);
+        }
+
+
+        public void linkAnalyzer(Analyzer analyzer) {
+            this.analyzer = analyzer;
         }
     }
 }

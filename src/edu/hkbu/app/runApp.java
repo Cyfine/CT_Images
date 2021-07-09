@@ -1,14 +1,14 @@
 package edu.hkbu.app;
 
 import edu.hkbu.util.imageutil.DHash;
-import edu.hkbu.util.imageutil.ImageViewerNEO;
+import edu.hkbu.util.imageutil.ImageViewer;
 import edu.hkbu.util.io.FileReader;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
-import static edu.hkbu.util.imageutil.ImageViewer.displayImage;
+import static edu.hkbu.util.imageutil.ImageViewerOld.displayImage;
 import static edu.hkbu.util.io.FileReader.getCTVolume;
 import static edu.hkbu.util.stringutil.StringUtils.containsIgnoreCase;
 import static edu.hkbu.util.stringutil.Tokenizer.tokenize;
@@ -138,7 +138,7 @@ public class runApp {
 
     public void show() throws Exception {
         if (volumes != null) {
-            ImageViewerNEO.showVolumes(volumes);
+            ImageViewer.showVolumes(volumes);
         } else {
             throw new Exception("No images loaded yet.");
         }
