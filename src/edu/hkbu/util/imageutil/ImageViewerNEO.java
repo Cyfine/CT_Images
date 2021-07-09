@@ -3,7 +3,6 @@ package edu.hkbu.util.imageutil;
 import processing.core.PApplet;
 import processing.core.PImage;
 
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,7 +13,6 @@ public class ImageViewerNEO extends PApplet {
     int currentVolIdx = 0;
     int currentImageIndex = 0;
 
-
     List<Float[]> buttonAlpha = new LinkedList<>();
     int frameRate = 60;
     boolean mouseReleased = true;
@@ -24,7 +22,6 @@ public class ImageViewerNEO extends PApplet {
         this.VOLUMES = volumes;
     }
 
-
     /**
      * Initial configuration of the pop-up windows
      */
@@ -32,8 +29,11 @@ public class ImageViewerNEO extends PApplet {
         size(512, 512);
 
         for (int i = 0; i < 2; i++) {
-            buttonAlpha.add(new Float[]{255f});
+            buttonAlpha.add(new Float[] { 255f });
         }
+
+        this.frame.setTitle(VOLUMES.get(currentVolIdx).toString() + " | "
+                + VOLUMES.get(currentVolIdx).getImageName(currentImageIndex));
 
         frameRate(frameRate);
     }
@@ -47,43 +47,50 @@ public class ImageViewerNEO extends PApplet {
         text(mouseX, 30, 60);
         text(mouseY, 30, 90);
 
-
         image(VOLUMES.get(currentVolIdx).getImages().get(currentImageIndex), 0, 0);
         int nextButtonX = 462;
         int prevButtonX = 50;
         int arrowButtonY = 253;
-        genericButton(nextButtonX, arrowButtonY, 40, () -> {
-                    if (currentImageIndex < VOLUMES.get(currentVolIdx).getImages().size() - 1)
-                        currentImageIndex++;
 
-                }, () -> sideEquilateralTri(nextButtonX, arrowButtonY, 30, 0.5f * PI)
-                , buttonAlpha.get(0));
+        // buttons to switch image within volume
+        genericButton(nextButtonX, arrowButtonY, 40, () -> {
+            if (currentImageIndex < VOLUMES.get(currentVolIdx).getImages().size() - 1)
+                currentImageIndex++;
+            this.frame.setTitle(VOLUMES.get(currentVolIdx).toString() + " | "
+                    + this.VOLUMES.get(currentVolIdx).getImageName(currentImageIndex));
+
+        }, () -> sideEquilateralTri(nextButtonX, arrowButtonY, 30, 0.5f * PI), buttonAlpha.get(0));
 
         genericButton(prevButtonX, arrowButtonY, 40, () -> {
-                    if (currentImageIndex > 0)
-                        currentImageIndex--;
-                }, () -> sideEquilateralTri(prevButtonX, arrowButtonY, 30, 1.5f * PI)
-                , buttonAlpha.get(0));
+            if (currentImageIndex > 0)
+                currentImageIndex--;
+            this.frame.setTitle(VOLUMES.get(currentVolIdx).toString() + " | "
+                    + this.VOLUMES.get(currentVolIdx).getImageName(currentImageIndex));
 
+        }, () -> sideEquilateralTri(prevButtonX, arrowButtonY, 30, 1.5f * PI), buttonAlpha.get(0));
 
+        // buttons to switch volumes
         triangleButton(253, 50, 30, () -> {
             if (currentVolIdx > 0 && VOLUMES.size() != 0) {
                 currentVolIdx--;
                 currentImageIndex = 0;
-                this.frame.setTitle(VOLUMES.get(currentVolIdx).toString());
+                this.frame.setTitle(VOLUMES.get(currentVolIdx).toString() + " | "
+                        + this.VOLUMES.get(currentVolIdx).getImageName(currentImageIndex));
             }
         }, 0, buttonAlpha.get(1));
-
 
         triangleButton(253, 462, 30, () -> {
             if (currentVolIdx < VOLUMES.size() - 1 && VOLUMES.size() != 0) {
                 currentVolIdx++;
                 currentImageIndex = 0;
-                this.frame.setTitle(VOLUMES.get(currentVolIdx).toString());
+                this.frame.setTitle(VOLUMES.get(currentVolIdx).toString() + " | "
+                        + this.VOLUMES.get(currentVolIdx).getImageName(currentImageIndex));
+
             }
 
         }, PI, buttonAlpha.get(1));
 
+    
     }
 
     /**
@@ -92,11 +99,10 @@ public class ImageViewerNEO extends PApplet {
      * @param volumes
      */
     public static void showVolumes(List<CT_Volume> volumes) {
-        String[] appletArgs = {"ImageViewerNEO"};
+        String[] appletArgs = { "ImageViewerNEO" };
         ImageViewerNEO instance = new ImageViewerNEO(volumes);
         runSketch(appletArgs, instance);
     }
-
 
     public void hist(PImage img, int[] hist) {
 
@@ -118,8 +124,16 @@ public class ImageViewerNEO extends PApplet {
         }
     }
 
+    /**
+     * If the image has a relevant JSON tag, show the JSON tag when display the image 
+     * 
+     */
+    public void showTag(){
+        
 
-//---------------------------  GUI Parts  --------------------------------
+    }
+
+    // --------------------------- GUI Parts --------------------------------
 
     /**
      * Draw a side equilateral triangle
@@ -133,10 +147,8 @@ public class ImageViewerNEO extends PApplet {
         pushMatrix();
         translate(x, y);
         noStroke();
-        rotate(angle);   //1.57079632679f for 90 degree
-        triangle(0, -length,
-                -length * sqrt(3) / 2, (1.0f * length / 2),
-                length * sqrt(3) / 2, (1.0f * length / 2));
+        rotate(angle); // 1.57079632679f for 90 degree
+        triangle(0, -length, -length * sqrt(3) / 2, (1.0f * length / 2), length * sqrt(3) / 2, (1.0f * length / 2));
         popMatrix();
     }
 
@@ -185,8 +197,7 @@ public class ImageViewerNEO extends PApplet {
     }
 
     public void triangleButton(int x, int y, int length, ButtonAction exe, float angle, Float[] alpha) {
-        genericButton(x, y, (int) (1.3 * length), exe, () -> sideEquilateralTri(x, y, length, angle)
-                , alpha);
+        genericButton(x, y, (int) (1.3 * length), exe, () -> sideEquilateralTri(x, y, length, angle), alpha);
     }
 
     /**
@@ -194,9 +205,10 @@ public class ImageViewerNEO extends PApplet {
      * @param y      the y coordinate of the detection box
      * @param width  the width of the detection box
      * @param height the height of the detection box
-     * @param mode   the detection mode, three modes in total, "bl" for the coordinate (x,y) is locate
-     *               at the bottom left of the detection box, similarly for "tl" (top-left) and "center".
-     *               The indicator String is NOT case-sensitive
+     * @param mode   the detection mode, three modes in total, "bl" for the
+     *               coordinate (x,y) is locate at the bottom left of the detection
+     *               box, similarly for "tl" (top-left) and "center". The indicator
+     *               String is NOT case-sensitive
      * @return true is the mouse is inside the detection box, vice versa false.
      */
     public boolean mouseListener(double x, double y, double width, double height, String mode) {
@@ -204,7 +216,8 @@ public class ImageViewerNEO extends PApplet {
             case "bl":
                 return (mouseX > x && mouseX < x + width && mouseY > y - height && y > mouseY);
             case "center":
-                return (mouseX < x + 0.5 * width && mouseX > x - 0.5 * width && mouseY > y - 0.5 * height && mouseY < y + 0.5 * height);
+                return (mouseX < x + 0.5 * width && mouseX > x - 0.5 * width && mouseY > y - 0.5 * height
+                        && mouseY < y + 0.5 * height);
             case "tl":
                 return (mouseX > x && mouseX < x + width && mouseY > y && mouseY < y + height);
         }
@@ -215,12 +228,13 @@ public class ImageViewerNEO extends PApplet {
         mouseReleased = true;
     }
 
-
     /**
-     * Contains only execute() method. execute() should be implemented using codes triggered by the button.
+     * Contains only execute() method. execute() should be implemented using codes
+     * triggered by the button.
      */
     @FunctionalInterface
     public interface ButtonAction {
         void execute();
     }
+
 }

@@ -17,6 +17,7 @@ import java.util.Scanner;
 
 import static edu.hkbu.util.imageutil.DHash.dHashing;
 
+@Deprecated
 public class ImageViewer extends PApplet {
     private FileReader.CT_Volume volume;
     private List<PImage> images = new LinkedList<PImage>();

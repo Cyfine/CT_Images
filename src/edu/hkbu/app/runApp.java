@@ -30,8 +30,6 @@ public class runApp {
     private int lastProcessThreadIdx = -1;
 
 
-
-
     public static void main(String[] args) {
         new runApp().start();
     }
@@ -116,12 +114,12 @@ public class runApp {
 //    }
 
 
-    private void load(String [] cmdArgs) throws Exception {
-        if(cmdArgs.length != 2){
+    private void load(String[] cmdArgs) throws Exception {
+        if (cmdArgs.length != 2) {
             throw new Exception("Invalid number of arguments");
         }
-       volumes=  getCTVolume(cmdArgs[1]);
-        for(FileReader.CT_Volume volume : volumes){
+        volumes = getCTVolume(cmdArgs[1]);
+        for (FileReader.CT_Volume volume : volumes) {
             threads.add(new Analyzer(volume));
         }
         System.gc();
@@ -138,10 +136,11 @@ public class runApp {
         }
     }
 
-    public void show() throws Exception
-    {
-        if(volumes != null){
+    public void show() throws Exception {
+        if (volumes != null) {
             ImageViewerNEO.showVolumes(volumes);
+        } else {
+            throw new Exception("No images loaded yet.");
         }
     }
 

@@ -165,7 +165,7 @@ public class FileReader extends PApplet {
         }
 
         int tagSize = tags.size();
-//        this.VOLUMES.addAll(parseCT_Volume(volumes, tags));
+        this.VOLUMES.addAll(parseCT_Volume(volumes, tags));
 
         String vs = "";
         String ts = "";
@@ -303,7 +303,7 @@ public class FileReader extends PApplet {
             }
 
             CT_Volume newVol = new CT_Volume(volume.get(0).getParentFile().getName(), volume.get(0).getName(),
-                    volume.get(volume.size() - 1).getName(), images);
+                    volume.get(volume.size() - 1).getName(), images, volume);
             newVol.addTag(temp);
             result.add(newVol);
         }
@@ -321,6 +321,7 @@ public class FileReader extends PApplet {
         List<PImage> images;
         List<CTag> tags;
         Analyzer analyzer = null;
+        List<File> imageFile = null;
 
         String parentPath;
         String startImageName; // name of the first image in the CT volume
@@ -335,11 +336,24 @@ public class FileReader extends PApplet {
             this.images = images;
         }
 
+        public CT_Volume(String parentPath, String startImageName, String endImageName, List<PImage> images, List<File> imageFile){
+            this(parentPath, startImageName, endImageName, images);
+            this.imageFile = imageFile;
+        }
+
+
+
         public String toString(){
             return  parentPath + " " + startImageName + "~" + endImageName;
         }
 
+        public List<File> getImageFile() {
+            return imageFile;
+        }
 
+        public String  getImageName(int index){
+            return  imageFile.get(index).getName();
+        }
 
         void addTag(Collection<CTag> c) {
             tags.addAll(c);
