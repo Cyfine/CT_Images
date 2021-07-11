@@ -1,0 +1,41 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch FileReader",
+            "request": "launch",
+            "mainClass": "edu.hkbu.util.io.FileReader",
+            "projectName": "CT_Images_2a342cba",
+            "vmArgs": "-Xmx8192m"
+        },
+        {
+            "type": "java",
+            "name": "Launch Current File",
+            "console": "integratedTerminal",
+            "request": "launch",
+            "mainClass": "${file}",
+            "vmArgs": "-Xmx8192m"
+        },
+        {
+            "type": "java",
+            "name": "Launch Test",
+            "request": "launch",
+            "mainClass": "edu.hkbu.app.Test",
+            "projectName": "CT_Images_2a342cba",
+            "vmArgs": "-Xmx8192m"
+        },
+        {
+            "type": "java",
+            "name": "Launch runApp",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "mainClass": "edu.hkbu.app.runApp",
+            "projectName": "CT_Images_2a342cba",
+            "vmArgs": "-Xmx8192m"
+        }
+    ]
+}
