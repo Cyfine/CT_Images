@@ -1,16 +1,11 @@
 package edu.hkbu.util.imageutil;
 
-import processing.core.PApplet;
-import processing.core.PImage;
+import edu.hkbu.util.io.FileReader.CT_Volume;
+import edu.hkbu.util.io.JSONProcessor.CTag;
+import processing.core.*;
 
-import javax.swing.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.util.LinkedList;
 import java.util.List;
-
-import static edu.hkbu.util.io.FileReader.CT_Volume;
 
 public class ImageViewer extends PApplet {
     final List<CT_Volume> VOLUMES;
@@ -18,48 +13,49 @@ public class ImageViewer extends PApplet {
     int currentImageIndex = 0;
 
     List<Float[]> buttonAlpha = new LinkedList<>();
+    PFont font;
     int frameRate = 60;
     boolean mouseReleased = true;
     boolean hide = true;
+    boolean showMouseCoordinate = false;
 
     public ImageViewer(List<CT_Volume> volumes) {
         this.VOLUMES = volumes;
     }
 
     /**
-     * Initial configuration of the pop-up windows
+     * Initial configuration of the pop-up window
      */
     public void setup() {
         size(512, 512);
+        font = createFont("./resources/JetBrainsMonoNL-Regular.ttf", 31);
 
-        for (int i = 0; i < 2; i++) {
-            buttonAlpha.add(new Float[]{255f});
+        for (int i = 0; i < 3; i++) {
+            buttonAlpha.add(new Float[] { 255f });
         }
 
         this.frame.setTitle(VOLUMES.get(currentVolIdx).toString() + " | "
-                + VOLUMES.get(currentVolIdx).getImageName(currentImageIndex));
-
-        ((JFrame) this.frame).setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-
-        this.frame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                System.exit(-1);
-            }
-        });
-        WindowListener[] listeners = this.frame.getWindowListeners();
+                + this.VOLUMES.get(currentVolIdx).getImageName(currentImageIndex));
+        System.out.println(
+                "Click \"Exit\" button to close the window. Otherwise the whole program will be terminated.");
     }
-
 
     /**
      * Drawing image and essential information on the canvas
      */
     public void draw() {
+        textFont(font);
         background(43, 43, 43);
-        fill(255);
-        text(mouseX, 30, 60);
-        text(mouseY, 30, 90);
-
         image(VOLUMES.get(currentVolIdx).getImages().get(currentImageIndex), 0, 0);
+
+        textButton(80, 500, "Coordinate", 25, () -> showMouseCoordinate = !showMouseCoordinate, buttonAlpha.get(2));
+        if (showMouseCoordinate) {
+            textSize(13);
+            fill(165, 179, 194);
+            text("x: " + mouseX, 30, 60);
+            text("y: " + mouseY, 30, 90);
+        }
+
         int nextButtonX = 462;
         int prevButtonX = 50;
         int arrowButtonY = 253;
@@ -102,7 +98,7 @@ public class ImageViewer extends PApplet {
 
         }, PI, buttonAlpha.get(1));
 
-
+        textButton(10, 500, "Exit", 25, () -> this.frame.dispose(), buttonAlpha.get(2));
     }
 
     /**
@@ -111,7 +107,7 @@ public class ImageViewer extends PApplet {
      * @param volumes
      */
     public static void showVolumes(List<CT_Volume> volumes) {
-        String[] appletArgs = {"ImageViewer"};
+        String[] appletArgs = { "ImageViewer" };
         ImageViewer instance = new ImageViewer(volumes);
         runSketch(appletArgs, instance);
     }
@@ -136,12 +132,19 @@ public class ImageViewer extends PApplet {
         }
     }
 
+    // TODO: Implement
     /**
-     * If the image has a relevant JSON tag, show the JSON tag when display the image
+     * If the image has a relevant JSON tag, show the JSON tag when displaying the
+     * image
      */
-    public void showTag() {
-        // if()
+    public void showTag(String fileName) {
+        CTag tag = VOLUMES.get(currentVolIdx).getTag(fileName);
+        String label;
+        int[][] points;
 
+        if (tag != null) {
+
+        }
     }
 
     // --------------------------- GUI Parts --------------------------------
@@ -174,8 +177,12 @@ public class ImageViewer extends PApplet {
     public void textButton(int x, int y, String title, int textSize, ImageViewer.ButtonAction exe, Float[] alpha) {
         textSize(textSize);
 
-        if (mouseListener(x, y, 0.5 * textSize * title.length(), textSize, "bl")) {
+        if (mouseListener(x, y, 0.6 * textSize * title.length(), textSize, "bl")) {
             alpha[0] = 255f;
+            rectMode(CORNERS);
+            stroke(165, 179, 194);
+            fill(255, 0f);
+            rect(x, y+3, x + 0.6f * textSize * title.length(), y - textSize);
             if (mousePressed && mouseReleased) {
                 exe.execute();
                 mouseReleased = false;
@@ -239,16 +246,6 @@ public class ImageViewer extends PApplet {
         mouseReleased = true;
     }
 
-    @Override
-    public void setupExternalMessages() {
-
-        this.frame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                   frame.setVisible(false);
-            }
-        });
-    }
-
     /**
      * Contains only execute() method. execute() should be implemented using codes
      * triggered by the button.
@@ -257,7 +254,5 @@ public class ImageViewer extends PApplet {
     public interface ButtonAction {
         void execute();
     }
-
-
 
 }

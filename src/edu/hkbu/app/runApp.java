@@ -8,11 +8,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
-import static edu.hkbu.util.imageutil.ImageViewerOld.displayImage;
 import static edu.hkbu.util.io.FileReader.getCTVolume;
 import static edu.hkbu.util.stringutil.StringUtils.containsIgnoreCase;
 import static edu.hkbu.util.stringutil.Tokenizer.tokenize;
-
 
 /*
 The path of the test file: D:/Confidential_Data/CT images/HEP0001 , header Se2Im, start Index 30
@@ -24,11 +22,9 @@ load /home/carter/Pictures/Confidential_Data/CT_images/HEP0001/ Se2Im 30 jpg
  */
 public class runApp {
 
-
     private List<Analyzer> threads = new LinkedList<>();
     private List<FileReader.CT_Volume> volumes;
     private int lastProcessThreadIdx = -1;
-
 
     public static void main(String[] args) {
         new runApp().start();
@@ -61,9 +57,9 @@ public class runApp {
                         list(cmdArgs);
                     case "dHash":
                         break;
-//                    case "test":
-//                        main_0(new String[]{"main"});
-//                        break;
+                    // case "test":
+                    // main_0(new String[]{"main"});
+                    // break;
                     case "output":
                         output(cmdArgs);
                         break;
@@ -81,7 +77,7 @@ public class runApp {
     private String[] getUserInput(Scanner in, String header) {
         String input;
         String[] result;
-        for (; ; ) {
+        for (;;) {
             System.out.print(header);
             input = in.nextLine();
             result = tokenize(input);
@@ -96,23 +92,24 @@ public class runApp {
     }
 
     // =========================== Commands ===================================
-//    private void load(String[] cmdArgs) throws Exception {
-//        if (cmdArgs.length != 5) {
-//            throw new Exception("Invalid number of arguments");
-//        }
-//        try {
-//            String volumePath = cmdArgs[1] + "/" + cmdArgs[2] + cmdArgs[3] + "." + cmdArgs[4];
-//            currentImages = ImageReader.loadImages(cmdArgs[1], cmdArgs[2], cmdArgs[4], Integer.parseInt(cmdArgs[3]));
-//            if (currentImages.size() == 0 || currentImages == null) {
-//                return;
-//            }
-//            imagesSet.add(currentImages);
-//            threads.add(new Analyzer(currentImages, volumePath));
-//        } catch (NumberFormatException e) {
-//            throw new Exception("Invalid number format");
-//        }
-//    }
-
+    // private void load(String[] cmdArgs) throws Exception {
+    // if (cmdArgs.length != 5) {
+    // throw new Exception("Invalid number of arguments");
+    // }
+    // try {
+    // String volumePath = cmdArgs[1] + "/" + cmdArgs[2] + cmdArgs[3] + "." +
+    // cmdArgs[4];
+    // currentImages = ImageReader.loadImages(cmdArgs[1], cmdArgs[2], cmdArgs[4],
+    // Integer.parseInt(cmdArgs[3]));
+    // if (currentImages.size() == 0 || currentImages == null) {
+    // return;
+    // }
+    // imagesSet.add(currentImages);
+    // threads.add(new Analyzer(currentImages, volumePath));
+    // } catch (NumberFormatException e) {
+    // throw new Exception("Invalid number format");
+    // }
+    // }
 
     private void load(String[] cmdArgs) throws Exception {
         if (cmdArgs.length != 2) {
@@ -125,16 +122,16 @@ public class runApp {
         System.gc();
     }
 
-    @Deprecated
-    private void showOld() throws Exception {
-        if (volumes != null) {
-            for (Analyzer thread : threads) {
-                displayImage(thread.volume.getImages(), thread.volume.toString());
-            }
-        } else {
-            throw new Exception("No images loaded yet.");
-        }
-    }
+    // @Deprecated
+    // private void showOld() throws Exception {
+    // if (volumes != null) {
+    // for (Analyzer thread : threads) {
+    // displayImage(thread.volume.getImages(), thread.volume.toString());
+    // }
+    // } else {
+    // throw new Exception("No images loaded yet.");
+    // }
+    // }
 
     public void show() throws Exception {
         if (volumes != null) {
@@ -167,7 +164,6 @@ public class runApp {
 
     }
 
-
     private void help(String[] cmdArgs) {
         if (cmdArgs.length < 2) {
             System.out.println("Available command: load, show, help, exit");
@@ -194,7 +190,6 @@ public class runApp {
 
     private void output(String[] cmdArgs) {
 
-
     }
 
     private void list(String[] cmdArgs) throws Exception {
@@ -219,7 +214,8 @@ public class runApp {
     }
 
     /**
-     * Scanning through each analyzer.filePath to find if the CT volume with key word exists
+     * Scanning through each analyzer.filePath to find if the CT volume with key
+     * word exists
      */
     private List<Analyzer> search(String keyword) {
         List<Analyzer> result = new LinkedList<>();
@@ -230,7 +226,6 @@ public class runApp {
         }
         return result;
     }
-
 
     // =========================== helper methods =============================
     private static void printHashes(List<int[]> list) {

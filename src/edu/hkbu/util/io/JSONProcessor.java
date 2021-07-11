@@ -36,8 +36,6 @@ public class JSONProcessor {
 
     public static class CTag {
         public Shape shape;
-
-
         String imagePath;
         String version;
         String absolutePath;

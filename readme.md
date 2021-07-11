@@ -58,17 +58,30 @@ This program has a command line interface. Syntax of commands as follows:
 ##### load
 
 ```
-load [path] [header] [start index] [format]
+load [path] 
 ```
 
 For example,
 
 ```
-load ~/Pictures/CT_images/HEP0001 Se2Im 30 jpg
+load home/User/Pictures/CT_images
 ```
-
-The images within a CT volume have file name with same header and continuous indices, so the header and start index is
-used to generate a series of filename and locate the CT-volume.
+The directory structure that `load` command support: 
+```
+CT_images 
+         |
+         |
+         |__HEP0001
+         |       |___Se2Im30.jpg
+         |       |___Se2Im31.jpg ...
+         |__HEP0002
+         |       |___Se3Im05.jpg
+         |       |___Se3Im06.jpg ...
+         |...
+```
+The directory is the parent directory of all the folders containing CT volumes and tags. 
+The load module will automatically identify all the CT volumes and valid JSON tags in the folder
+then load them into memory.
 
 #####  
 

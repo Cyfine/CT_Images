@@ -1,4 +1,3 @@
-
 /*
 The file Reader is designed to load large amount of CT images automatically
 The information in stored in the FileReader instance
@@ -13,7 +12,7 @@ CT_images (refer as master directory)
          |       |___Se3Im05.jpg
          |       |___Se3Im06.jpg ...
          |...
-
+·
  */
 package edu.hkbu.util.io;
 
@@ -23,11 +22,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import processing.core.PApplet;
 import processing.core.PImage;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-
 import static edu.hkbu.util.io.JSONProcessor.CTag;
 import static edu.hkbu.util.stringutil.StringUtils.extractNum;
 
@@ -49,6 +46,11 @@ public class FileReader extends PApplet {
         return VOLUMES;
     }
 
+    /**
+     * Load the file structure to List of java.io.File
+     * 
+     * @param dir The parent directory of folders that contains CT volumes
+     */
     public FileReader(String dir) {
         // The master directory
         File masterFile = new File(dir);
@@ -68,9 +70,12 @@ public class FileReader extends PApplet {
         // sort the File in ascending order
 
         getVolumes();
-
     }
 
+    /**
+     * Load from the parent directory of folders that contains CT volumes, and add
+     * volumes to class variable VOLUMES.
+     */
     public void getVolumes() {
         int folderCnt = 0;
         for (File folder : directories) {
@@ -91,6 +96,11 @@ public class FileReader extends PApplet {
 
     }
 
+    /**
+     * Load and add CT volumes to class variable VOLUMES
+     * 
+     * @param folder The folder contains CT volumes
+     */
     private void loadVolumeFromFolder(File folder) {
         System.out.printf("Loading from folder %s\n", folder.getName());
 
@@ -127,7 +137,7 @@ public class FileReader extends PApplet {
             return;
         }
 
-        HashMap<Integer, List<File>> map = separateVolumeIdx(imgFile);
+        HashMap<Integer, List<File>> map = separateVolumeId(imgFile);
 
         List<File> currentVolume;
         for (Integer i : map.keySet()) {
@@ -178,7 +188,13 @@ public class FileReader extends PApplet {
         System.gc();
     }
 
-    public HashMap<Integer, List<File>> separateVolumeIdx(List<File> imgFile) {
+    /**
+     * Initially separate the CT volumes by the volume id.
+     * 
+     * @param imgFile unprocessed list of image files
+     * @return Grouped image files
+     */
+    private HashMap<Integer, List<File>> separateVolumeId(List<File> imgFile) {
 
         HashMap<Integer, List<File>> map = new HashMap<>();
 
@@ -205,9 +221,9 @@ public class FileReader extends PApplet {
      * @param files a List of files may contains different types of files
      * @return a Hash map which key is the certain file type (String of file
      *         extension), and each key binding a list that contains all the files
-     *         have the file type of its key
+     *         having correspond file type of its key
      */
-    public HashMap<String, List<File>> separateFileType(List<File> files) {
+    private HashMap<String, List<File>> separateFileType(List<File> files) {
         HashMap<String, List<File>> map = new HashMap<>();
 
         String typ;
@@ -227,9 +243,17 @@ public class FileReader extends PApplet {
     }
 
     /**
-     * The files should be presorted
+     * This method will separate the images according to its sequential index.
+     * Images with continuous index will be putted into same group. There may be
+     * image loss within single CT volume, when the index difference between two
+     * adjacent images is 2. Also the image may have void image index, such as
+     * "Se2Im.png". The image with void index will be ignored and reported in the
+     * console.
+     * 
+     * @param files List of presorted image files
+     * @return A list of grouped image files.
      */
-    public List<List<File>> separateFileIndex(List<File> files) {
+    private List<List<File>> separateFileIndex(List<File> files) {
         List<List<File>> volumes = new LinkedList<>();
         List<File> currentList = new LinkedList<>();
         volumes.add(currentList);
@@ -276,45 +300,60 @@ public class FileReader extends PApplet {
 
     }
 
-    public List<CT_Volume> parseCT_Volume(List<List<File>> volumes, List<CTag> tags) {
+    /**
+     * Parse the CT volumes represented using List<File> in to CT_Volume object,
+     * match and embed the correspond tag to the CT_Volume object.
+     * <p>
+     * As this method contains loadImage() method, which load images on the disk,
+     * this method may met several performance issues. Especially OutOfMemory error
+     * (OOM) when load a large image set to the memory. When such issue occurs, try
+     * to set larger maximum memory for JVM (vmArgs such as -Xmx8192m).
+     * <p/>
+     * 
+     * @param volumes The List of CT volume represented using List<File> in a single
+     *                folder
+     * @param tags    The JSON tags
+     * @return List of a parsed CT_Volume object
+     */
+    private List<CT_Volume> parseCT_Volume(List<List<File>> volumes, List<CTag> tags) {
         List<CT_Volume> result = new LinkedList<>();
         List<PImage> images;
-        List<CTag> temp;
+        HashMap<String, CTag> tagsMap;
 
         for (List<File> volume : volumes) {
             images = new LinkedList<>();
-            temp = new LinkedList<>();
+            tagsMap = new HashMap<>();
 
-            for (File file : volume) {
+            for (int i = 0; i < volume.size(); i++) {
+                File file = volume.get(i);
+
                 PImage newImage = loadImage(file.getAbsolutePath());
                 images.add(newImage);
-                for (int i = 0; i < tags.size(); i++) {
-                    CTag tag = tags.get(i);
+                for (int j = 0; j < tags.size(); j++) {
+                    CTag tag = tags.get(j);
                     if (tag.getImagePath().equals(file.getName())) {
-                        temp.add(tags.remove(i));
-                        i--;
-
+                        tagsMap.put(file.getName(), tags.remove(j));
+                        j--;
                     }
                 }
             }
 
             CT_Volume newVol = new CT_Volume(volume.get(0).getParentFile().getName(), volume.get(0).getName(),
-                    volume.get(volume.size() - 1).getName(), images, volume);
-            newVol.addTag(temp);
+                    volume.get(volume.size() - 1).getName(), images, volume, tagsMap);
+
             result.add(newVol);
         }
 
         return result;
     }
 
-    /*
-     * The inner class CT_Volume, to encapsulate essential information of a
-     * CT_volume in a single Object
+    /**
+     * A Class used to encapsulate images and essential information of a CT volume.
      */
     public static class CT_Volume {
 
         private List<PImage> images;
-        private List<CTag> tags;
+        private HashMap<String, CTag> tags;
         private Analyzer analyzer = null;
         private List<File> imageFile = null;
 
@@ -324,7 +363,7 @@ public class FileReader extends PApplet {
 
         public CT_Volume(String parentPath, String startImageName, String endImageName, List<PImage> images) {
             this.images = new LinkedList<>();
-            this.tags = new LinkedList<>();
+
             this.parentPath = parentPath;
             this.startImageName = startImageName;
             this.endImageName = endImageName;
@@ -332,16 +371,17 @@ public class FileReader extends PApplet {
         }
 
         public CT_Volume(String parentPath, String startImageName, String endImageName, List<PImage> images,
-                List<File> imageFile) {
+                List<File> imageFile, HashMap<String, CTag> tagsMap) {
             this(parentPath, startImageName, endImageName, images);
             this.imageFile = imageFile;
+
         }
 
         public String toString() {
             return parentPath + " " + startImageName + "~" + endImageName;
         }
 
-        //getters
+        // getters
         public List<File> getImageFile() {
             return imageFile;
         }
@@ -354,11 +394,9 @@ public class FileReader extends PApplet {
             return imageFile.get(index).getName();
         }
 
-        //setters
-        void addTag(Collection<CTag> c) {
-            tags.addAll(c);
+        public CTag getTag(String fileName) {
+            return tags.get(fileName);
         }
-
 
         public void linkAnalyzer(Analyzer analyzer) {
             this.analyzer = analyzer;
