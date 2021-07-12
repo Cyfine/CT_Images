@@ -136,7 +136,7 @@ public class runApp {
     // }
 
     public void show() throws Exception {
-        if (volumes != null) {
+        if (volumes != null && volumes.size()!=0) {
             ImageViewer.showVolumes(volumes);
         } else {
             throw new Exception("No images loaded yet.");

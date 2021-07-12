@@ -1,7 +1,8 @@
 package edu.hkbu.util.stringutil;
 
-import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 public class StringUtils {
 
@@ -114,31 +115,4 @@ public class StringUtils {
         System.out.print("\033[32m" + str);
     }
 
-    public static void main(String [] args){
-        printlnGreen("Testing");
-    }
-
-    public static void main0(String[]args){
-        File f = new File("/home/carter/Pictures/Confidential_Data/CT_images");
-        File [] files = f.listFiles();
-        LinkedList<String> fileList = new LinkedList<>();
-        for(File file: files){
-            if(file.isDirectory()){
-                fileList.add(file.getName());
-            }
-        }
-
-        fileList.sort((o1,o2) ->{
-            int n1 = extractNum(o1).get(0);
-            int n2 = extractNum(o2).get(0);
-            return n1 - n2;
-        });
-
-
-
-//        strSort(fileName, 1);
-        for(String str : fileList){
-            System.out.println(str);
-        }
-    }
 }

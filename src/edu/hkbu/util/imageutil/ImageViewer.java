@@ -38,30 +38,69 @@ public class ImageViewer extends PApplet {
 
         this.frame.setTitle(VOLUMES.get(currentVolIdx).toString() + " | "
                 + this.VOLUMES.get(currentVolIdx).getImageName(currentImageIndex));
-        System.out.println(
-                "Click \"Exit\" button to close the window. Otherwise the whole program will be terminated.");
+        System.out
+                .println("Click \"Exit\" button to close the window. Otherwise the whole program will be terminated.");
     }
 
     /**
-     * Drawing image and essential information on the canvas
+     * Drawing on the canvas window
      */
     public void draw() {
+        viewerMode();
+    }
+
+    /**
+     * If the image has a relevant JSON tag, show the JSON tag when displaying the
+     * image
+     */
+    public void showTags(int x, int y, int textSize) {
+      
+        CTag tag = VOLUMES.get(currentVolIdx).getTag(currentImageIndex);
+        fill(165, 179, 194);
+        if (tag != null) {
+            pushMatrix();
+            translate(x, y);
+            double[][] points = tag.getPoints();
+            String imagePath = tag.getImagePath();
+            int offset = rounding(0.3 * textSize);
+
+            textSize(textSize);
+          
+
+            text("imagePath: " + imagePath, x, y + textSize);
+            for (int i = 0; i < points.length; i++) {
+                text("points " + i + " : " + arrayToString(points[i]), x, y + textSize + (textSize + offset) * (i+1) );
+                
+            }
+            popMatrix();
+
+            for (int i = 0; i < points.length; i++) {
+                rectMode(CENTER);
+                stroke(100, 255, 100);
+                fill(255,0);
+                rect((float)points[i][0], (float)points[i][1], 10, 10);
+            }
+
+        }
+      
+    
+        
+    }
+
+
+    private void viewerMode() {
         textFont(font);
         background(43, 43, 43);
         image(VOLUMES.get(currentVolIdx).getImages().get(currentImageIndex), 0, 0);
 
         textButton(80, 500, "Coordinate", 25, () -> showMouseCoordinate = !showMouseCoordinate, buttonAlpha.get(2));
-        if (showMouseCoordinate) {
-            textSize(13);
-            fill(165, 179, 194);
-            text("x: " + mouseX, 30, 60);
-            text("y: " + mouseY, 30, 90);
-        }
+        showCoordinate(460, 15);
 
         int nextButtonX = 462;
         int prevButtonX = 50;
         int arrowButtonY = 253;
 
+        showTags(0, 5, 12);
         // buttons to switch image within volume
         genericButton(nextButtonX, arrowButtonY, 40, () -> {
             if (currentImageIndex < VOLUMES.get(currentVolIdx).getImages().size() - 1)
@@ -103,6 +142,18 @@ public class ImageViewer extends PApplet {
         textButton(10, 500, "Exit", 25, () -> this.frame.dispose(), buttonAlpha.get(2));
     }
 
+    private void showCoordinate(int x, int y) {
+        pushMatrix();
+        translate(x, y);
+        if (showMouseCoordinate) {
+            textSize(13);
+            fill(165, 179, 194);
+            text("x: " + mouseX, 0, 0);
+            text("y: " + mouseY, 0, 30);
+        }
+        popMatrix();
+    }
+
     /**
      * The static method to instantiate a ImageViewer instance
      *
@@ -134,20 +185,6 @@ public class ImageViewer extends PApplet {
         }
     }
 
-    // TODO: Implement
-    /**
-     * If the image has a relevant JSON tag, show the JSON tag when displaying the
-     * image
-     */
-    public void showTag(String fileName) {
-        CTag tag = VOLUMES.get(currentVolIdx).getTag(fileName);
-        String label;
-        int[][] points;
-
-        if (tag != null) {
-
-        }
-    }
 
     // --------------------------- GUI Parts --------------------------------
 
@@ -184,7 +221,7 @@ public class ImageViewer extends PApplet {
             rectMode(CORNERS);
             stroke(165, 179, 194);
             fill(255, 0f);
-            rect(x, y+3, x + 0.6f * textSize * title.length(), y - textSize);
+            rect(x, y + 3, x + 0.6f * textSize * title.length(), y - textSize, 7);
             if (mousePressed && mouseReleased) {
                 exe.execute();
                 mouseReleased = false;
@@ -255,6 +292,23 @@ public class ImageViewer extends PApplet {
     @FunctionalInterface
     public interface ButtonAction {
         void execute();
+    }
+
+    // helper methods
+    private int rounding(double num) {
+        return (int) (num + 0.5);
+    }
+
+    private String arrayToString(double[] a) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < a.length; i++) {
+            if (i != a.length - 1)
+                sb.append("" + a[i] + ", ");
+            else
+                sb.append("" + a[i] + "]");
+        }
+        return sb.toString();
     }
 
 }

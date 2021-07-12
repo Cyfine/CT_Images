@@ -374,6 +374,7 @@ public class FileReader extends PApplet {
                 List<File> imageFile, HashMap<String, CTag> tagsMap) {
             this(parentPath, startImageName, endImageName, images);
             this.imageFile = imageFile;
+            this.tags = tagsMap;
 
         }
 
@@ -396,6 +397,12 @@ public class FileReader extends PApplet {
 
         public CTag getTag(String fileName) {
             return tags.get(fileName);
+        }
+
+        public CTag getTag(int idx){
+            if(tags != null)
+            return tags.get(imageFile.get(idx).getName()); 
+            else return null; 
         }
 
         public void linkAnalyzer(Analyzer analyzer) {

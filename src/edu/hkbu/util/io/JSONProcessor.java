@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 
-
 public class JSONProcessor {
 
     public static CTag getImgTag(String directory) throws IOException {
@@ -40,8 +39,7 @@ public class JSONProcessor {
         String version;
         String absolutePath;
 
-
-        //constructor
+        // constructor
         public CTag(JSONObject t) {
             this.version = t.getString("version");
             this.imagePath = t.getString("imagePath");
@@ -54,18 +52,16 @@ public class JSONProcessor {
             this.absolutePath = absolutePath;
         }
 
-
-        //getters
-        String getLabel() {
+        // getters
+        public String getLabel() {
             return shape.label;
         }
 
-        int[][] getPoints() {
+        public double[][] getPoints() {
             return shape.points;
         }
 
-
-        String getShapeType() {
+        public String getShapeType() {
             return shape.shapeType;
 
         }
@@ -78,11 +74,10 @@ public class JSONProcessor {
             absolutePath = absPath;
         }
 
-
         // Inner class of CTag, to integrate the shape information
-        private class Shape {
+        private static class Shape {
             String label;
-            int[][] points;
+            double[][] points;
 
             String shapeType;
 
@@ -96,34 +91,30 @@ public class JSONProcessor {
             Shape(String label, String shapeType, JSONArray points) {
                 this(label, shapeType);
 
-
-                int[][] result = new int[points.length()][2];
+                double[][] result = new double[points.length()][2];
 
                 for (int i = 0; i < points.length(); i++) {
                     JSONArray arr = points.getJSONArray(i);
-                    result[i][0] = rounding(arr.optDouble(0));
-                    result[i][1] = rounding(arr.optDouble(1));
+                    result[i][0] = arr.optDouble(0);
+                    result[i][1] = arr.optDouble(1);
                 }
 
                 this.points = result;
             }
-
 
             // getters
             public String getLabel() {
                 return label;
             }
 
-            public int[][] getPoints() {
+            public double[][] getPoints() {
                 return points;
             }
-
 
             public String getShapeType() {
                 return shapeType;
             }
         }
-
 
     }
 
@@ -131,9 +122,9 @@ public class JSONProcessor {
         return (int) (num += 0.5);
     }
 
-
     public static void main(String[] args) throws IOException {
-//        CTag tag = getImgTag("/home/carter/Pictures/Confidential_Data/CT_images/HEP0001/Se3Im48.json");
+        // CTag tag =
+        // getImgTag("/home/carter/Pictures/Confidential_Data/CT_images/HEP0001/Se3Im48.json");
         CTag tag = getImgTag("D:/Confidential_Data/CT_images/HEP0001/Se3Im48.json");
 
     }
