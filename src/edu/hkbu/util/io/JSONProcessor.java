@@ -106,8 +106,5 @@ public class JSONProcessor {
 
     }
 
-    public static int rounding(double num) {
-        return (int) (num += 0.5);
-    }
 
 }

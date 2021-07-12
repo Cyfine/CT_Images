@@ -165,6 +165,16 @@ public class ImageViewer extends PApplet {
         runSketch(appletArgs, instance);
     }
 
+
+    /**
+     *
+     */
+    public void outputCurrentFrame(String filename){
+        mouseX = (int)(0.5*width) ;
+        mouseY = (int)(0.5*height);
+        save("./Output/" + filename);
+    }
+
     public void hist(PImage img, int[] hist) {
 
         // Find the largest value in the histogram

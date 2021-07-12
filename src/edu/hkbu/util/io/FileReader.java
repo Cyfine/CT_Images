@@ -22,9 +22,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import processing.core.PApplet;
 import processing.core.PImage;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+
 import static edu.hkbu.util.io.JSONProcessor.CTag;
 import static edu.hkbu.util.stringutil.StringUtils.extractNum;
 
@@ -48,7 +50,7 @@ public class FileReader extends PApplet {
 
     /**
      * Load the file structure to List of java.io.File
-     * 
+     *
      * @param dir The parent directory of folders that contains CT volumes
      */
     public FileReader(String dir) {
@@ -98,7 +100,7 @@ public class FileReader extends PApplet {
 
     /**
      * Load and add CT volumes to class variable VOLUMES
-     * 
+     *
      * @param folder The folder contains CT volumes
      */
     private void loadVolumeFromFolder(File folder) {
@@ -106,7 +108,7 @@ public class FileReader extends PApplet {
 
         File[] f = folder.listFiles();
         List<File> imgFile = new LinkedList<>(); // contains all file in the folder, folder may contains multiple
-                                                 // volumes
+        // volumes
         List<List<File>> volumes = new LinkedList<>();
         List<CTag> tags = new LinkedList<>();
         String fName = "";
@@ -190,7 +192,7 @@ public class FileReader extends PApplet {
 
     /**
      * Initially separate the CT volumes by the volume id.
-     * 
+     *
      * @param imgFile unprocessed list of image files
      * @return Grouped image files
      */
@@ -220,8 +222,8 @@ public class FileReader extends PApplet {
      *
      * @param files a List of files may contains different types of files
      * @return a Hash map which key is the certain file type (String of file
-     *         extension), and each key binding a list that contains all the files
-     *         having correspond file type of its key
+     * extension), and each key binding a list that contains all the files
+     * having correspond file type of its key
      */
     private HashMap<String, List<File>> separateFileType(List<File> files) {
         HashMap<String, List<File>> map = new HashMap<>();
@@ -249,7 +251,7 @@ public class FileReader extends PApplet {
      * adjacent images is 2. Also the image may have void image index, such as
      * "Se2Im.png". The image with void index will be ignored and reported in the
      * console.
-     * 
+     *
      * @param files List of presorted image files
      * @return A list of grouped image files.
      */
@@ -309,7 +311,7 @@ public class FileReader extends PApplet {
      * (OOM) when load a large image set to the memory. When such issue occurs, try
      * to set larger maximum memory for JVM (vmArgs such as -Xmx8192m).
      * <p/>
-     * 
+     *
      * @param volumes The List of CT volume represented using List<File> in a single
      *                folder
      * @param tags    The JSON tags
@@ -318,7 +320,7 @@ public class FileReader extends PApplet {
     private List<CT_Volume> parseCT_Volume(List<List<File>> volumes, List<CTag> tags) {
         List<CT_Volume> result = new LinkedList<>();
         List<PImage> images;
-        HashMap<String, CTag> tagsMap;
+        HashMap<PImage, CTag> tagsMap;
 
         for (List<File> volume : volumes) {
             images = new LinkedList<>();
@@ -332,7 +334,7 @@ public class FileReader extends PApplet {
                 for (int j = 0; j < tags.size(); j++) {
                     CTag tag = tags.get(j);
                     if (tag.getImagePath().equals(file.getName())) {
-                        tagsMap.put(file.getName(), tags.remove(j));
+                        tagsMap.put(newImage, tags.remove(j));
                         j--;
                     }
                 }
@@ -353,7 +355,7 @@ public class FileReader extends PApplet {
     public static class CT_Volume {
 
         private List<PImage> images;
-        private HashMap<String, CTag> tags;
+        private HashMap<PImage, CTag> tags;
         private Analyzer analyzer = null;
         private List<File> imageFile = null;
 
@@ -371,7 +373,7 @@ public class FileReader extends PApplet {
         }
 
         public CT_Volume(String parentPath, String startImageName, String endImageName, List<PImage> images,
-                List<File> imageFile, HashMap<String, CTag> tagsMap) {
+                         List<File> imageFile, HashMap<PImage, CTag> tagsMap) {
             this(parentPath, startImageName, endImageName, images);
             this.imageFile = imageFile;
             this.tags = tagsMap;
@@ -395,14 +397,16 @@ public class FileReader extends PApplet {
             return imageFile.get(index).getName();
         }
 
-        public CTag getTag(String fileName) {
-            return tags.get(fileName);
+        public CTag getTag(int idx) {
+            if (tags != null && tags.size() != 0)
+                return tags.get(images.get(idx));
+            else return null;
         }
 
-        public CTag getTag(int idx){
-            if(tags != null)
-            return tags.get(imageFile.get(idx).getName()); 
-            else return null; 
+        public CTag getTag(PImage img) {
+            if (tags != null && tags.size() != 0)
+                return tags.get(img);
+            else return null;
         }
 
         public void linkAnalyzer(Analyzer analyzer) {

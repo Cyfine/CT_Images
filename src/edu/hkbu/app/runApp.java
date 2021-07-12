@@ -12,14 +12,7 @@ import static edu.hkbu.util.io.FileReader.getCTVolume;
 import static edu.hkbu.util.stringutil.StringUtils.containsIgnoreCase;
 import static edu.hkbu.util.stringutil.Tokenizer.tokenize;
 
-/*
-The path of the test file: D:/Confidential_Data/CT images/HEP0001 , header Se2Im, start Index 30
-load D:/Confidential_Data/CT_images/HEP0001 Se2Im 30 jpg
 
-
-linux :
-load /home/carter/Pictures/Confidential_Data/CT_images/HEP0001/ Se2Im 30 jpg
- */
 public class runApp {
 
     private List<Analyzer> threads = new LinkedList<>();
