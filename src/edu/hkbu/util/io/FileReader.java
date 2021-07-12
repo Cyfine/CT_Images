@@ -395,6 +395,10 @@ public class FileReader extends PApplet {
             return imageFile.get(index).getName();
         }
 
+        public String getFolderName(){
+            return imageFile.get(0).getParentFile().getName();
+        }
+
         public CTag getTag(PImage img) {
             if (tags != null && tags.size() != 0)
                 return tags.get(img);

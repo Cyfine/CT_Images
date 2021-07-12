@@ -84,7 +84,20 @@ public class ImageViewer extends PApplet {
 
     }
 
+    private void outputSingleImage() {
+        mouseX = (int)0.5*width;
+        mouseY = (int)0.5*height;
+        CT_Volume volume = VOLUMES.get(currentVolIdx);
+        String imageName = volume.getImageName(currentImageIndex);
+        image(volume.getImages().get(currentImageIndex), 0, 0);
+        showTags(0, 5, 12);
+        outputCurrentFrame( volume.getFolderName() + "_" + imageName,"./output/");
+        System.out.println("Output image: " + volume.getFolderName() + "_" + imageName);
+    }
+
     private void outputMode() {
+        noLoop();
+        int cnt = 0;
         for (currentVolIdx = 0; currentVolIdx < VOLUMES.size(); currentVolIdx++) {
             CT_Volume volume = VOLUMES.get(currentVolIdx);
             for (currentImageIndex = 0; currentImageIndex < volume.getImages().size(); currentImageIndex++) {
@@ -92,11 +105,14 @@ public class ImageViewer extends PApplet {
                     String imageName = volume.getImageName(currentImageIndex);
                     image(volume.getImages().get(currentImageIndex), 0, 0);
                     showTags(0, 5, 12);
-                    outputCurrentFrame("./output/", "tagged_" + imageName);
+                    outputCurrentFrame(volume.getFolderName() + "_" + imageName,"./output/");
+                    System.out.println("Output image: " + volume.getFolderName() + "_" + imageName);
+                    cnt++;
                 }
-
             }
         }
+
+        System.out.println("Total " + cnt + " files  outputted.");
 
     }
 
@@ -152,6 +168,7 @@ public class ImageViewer extends PApplet {
         }, PI, buttonAlpha.get(1));
 
         textButton(10, 500, "Exit", 25, () -> this.frame.dispose(), buttonAlpha.get(2));
+        textButton(240, 500, "Output", 25,() -> outputSingleImage(), buttonAlpha.get(2)); 
     }
 
     private void showCoordinate(int x, int y) {
