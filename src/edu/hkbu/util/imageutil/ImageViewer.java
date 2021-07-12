@@ -2,7 +2,9 @@ package edu.hkbu.util.imageutil;
 
 import edu.hkbu.util.io.FileReader.CT_Volume;
 import edu.hkbu.util.io.JSONProcessor.CTag;
-import processing.core.*;
+import processing.core.PApplet;
+import processing.core.PFont;
+import processing.core.PImage;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -28,7 +30,7 @@ public class ImageViewer extends PApplet {
      */
     public void setup() {
         size(512, 512);
-        font = createFont("./resources/JetBrainsMonoNL-Regular.ttf", 31);
+        font = createFont("resources/JetBrainsMonoNL-Regular.ttf", 31);
 
         for (int i = 0; i < 3; i++) {
             buttonAlpha.add(new Float[] { 255f });

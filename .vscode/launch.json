@@ -8,6 +8,7 @@
             "type": "java",
             "name": "Launch FileReader",
             "request": "launch",
+            ""
             "mainClass": "edu.hkbu.util.io.FileReader",
             "projectName": "CT_Images_2a342cba",
             "vmArgs": "-Xmx8192m"
@@ -15,7 +16,7 @@
         {
             "type": "java",
             "name": "Launch Current File",
-            "console": "integratedTerminal",
+            "console": "internalConsole",
             "request": "launch",
             "mainClass": "${file}",
             "vmArgs": "-Xmx8192m"
@@ -24,6 +25,7 @@
             "type": "java",
             "name": "Launch Test",
             "request": "launch",
+            "console": "internalConsole",
             "mainClass": "edu.hkbu.app.Test",
             "projectName": "CT_Images_2a342cba",
             "vmArgs": "-Xmx8192m"
@@ -32,7 +34,7 @@
             "type": "java",
             "name": "Launch runApp",
             "request": "launch",
-            "console": "integratedTerminal",
+            "console": "internalConsole",
             "mainClass": "edu.hkbu.app.runApp",
             "projectName": "CT_Images_2a342cba",
             "vmArgs": "-Xmx8192m"
