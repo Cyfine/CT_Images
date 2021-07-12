@@ -101,19 +101,7 @@ public class JSONProcessor {
 
                 this.points = result;
             }
-
-            // getters
-            public String getLabel() {
-                return label;
-            }
-
-            public double[][] getPoints() {
-                return points;
-            }
-
-            public String getShapeType() {
-                return shapeType;
-            }
+            
         }
 
     }
