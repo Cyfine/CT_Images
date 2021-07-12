@@ -36,7 +36,7 @@ public class FileReader extends PApplet {
     private final List<CT_Volume> VOLUMES = new LinkedList<>();
 
     public static void main(String[] args) {
-        List<CT_Volume> volumes = getCTVolume("D:\\Confidential_Data\\CT_Images");
+        // List<CT_Volume> volumes = getCTVolume("D:\\Confidential_Data\\CT_Images");
     }
 
     public static List<CT_Volume> getCTVolume(String masterDir) {
@@ -246,7 +246,7 @@ public class FileReader extends PApplet {
 
     /**
      * This method will separate the images according to its sequential index.
-     * Images with continuous index will be putted into same group. There may be
+     * Images with continuous index will be put into same group. There may be
      * image loss within single CT volume, when the index difference between two
      * adjacent images is 2. Also the image may have void image index, such as
      * "Se2Im.png". The image with void index will be ignored and reported in the
@@ -326,9 +326,7 @@ public class FileReader extends PApplet {
             images = new LinkedList<>();
             tagsMap = new HashMap<>();
 
-            for (int i = 0; i < volume.size(); i++) {
-                File file = volume.get(i);
-
+            for (File file : volume) {
                 PImage newImage = loadImage(file.getAbsolutePath());
                 images.add(newImage);
                 for (int j = 0; j < tags.size(); j++) {
@@ -385,7 +383,7 @@ public class FileReader extends PApplet {
         }
 
         // getters
-        public List<File> getImageFile() {
+        public List<File> getFile() {
             return imageFile;
         }
 
@@ -397,17 +395,25 @@ public class FileReader extends PApplet {
             return imageFile.get(index).getName();
         }
 
+        public CTag getTag(PImage img) {
+            if (tags != null && tags.size() != 0)
+                return tags.get(img);
+            else return null;
+        }
+
         public CTag getTag(int idx) {
             if (tags != null && tags.size() != 0)
                 return tags.get(images.get(idx));
             else return null;
         }
 
-        public CTag getTag(PImage img) {
-            if (tags != null && tags.size() != 0)
-                return tags.get(img);
-            else return null;
+
+        public Analyzer getAnalyzer() {
+            return analyzer;
         }
+
+
+
 
         public void linkAnalyzer(Analyzer analyzer) {
             this.analyzer = analyzer;

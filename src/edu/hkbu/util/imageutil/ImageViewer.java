@@ -54,7 +54,7 @@ public class ImageViewer extends PApplet {
      * image
      */
     public void showTags(int x, int y, int textSize) {
-      
+
         CTag tag = VOLUMES.get(currentVolIdx).getTag(currentImageIndex);
         fill(165, 179, 194);
         if (tag != null) {
@@ -65,28 +65,40 @@ public class ImageViewer extends PApplet {
             int offset = rounding(0.3 * textSize);
 
             textSize(textSize);
-          
 
             text("imagePath: " + imagePath, x, y + textSize);
             for (int i = 0; i < points.length; i++) {
-                text("points " + i + " : " + arrayToString(points[i]), x, y + textSize + (textSize + offset) * (i+1) );
-                
+                text("points " + i + " : " + arrayToString(points[i]), x, y + textSize + (textSize + offset) * (i + 1));
+
             }
             popMatrix();
 
             for (int i = 0; i < points.length; i++) {
                 rectMode(CENTER);
                 stroke(100, 255, 100);
-                fill(255,0);
-                rect((float)points[i][0], (float)points[i][1], 10, 10);
+                fill(255, 0);
+                rect((float) points[i][0], (float) points[i][1], 10, 10);
             }
 
         }
-      
-    
-        
+
     }
 
+    private void outputMode() {
+        for (currentVolIdx = 0; currentVolIdx < VOLUMES.size(); currentVolIdx++) {
+            CT_Volume volume = VOLUMES.get(currentVolIdx);
+            for (currentImageIndex = 0; currentImageIndex < volume.getImages().size(); currentImageIndex++) {
+                if (volume.getTag(currentImageIndex) != null) {
+                    String imageName = volume.getImageName(currentImageIndex);
+                    image(volume.getImages().get(currentImageIndex), 0, 0);
+                    showTags(0, 5, 12);
+                    outputCurrentFrame("./output/", "tagged_" + imageName);
+                }
+
+            }
+        }
+
+    }
 
     private void viewerMode() {
         textFont(font);
@@ -165,14 +177,13 @@ public class ImageViewer extends PApplet {
         runSketch(appletArgs, instance);
     }
 
-
     /**
-     *
+     * Output current frame to image
      */
-    public void outputCurrentFrame(String filename){
-        mouseX = (int)(0.5*width) ;
-        mouseY = (int)(0.5*height);
-        save("./Output/" + filename);
+    public void outputCurrentFrame(String filename, String path) {
+        mouseX = (int) (0.5 * width);
+        mouseY = (int) (0.5 * height);
+        save(path + filename);
     }
 
     public void hist(PImage img, int[] hist) {
@@ -194,7 +205,6 @@ public class ImageViewer extends PApplet {
             line(i, img.height, i, y);
         }
     }
-
 
     // --------------------------- GUI Parts --------------------------------
 
