@@ -318,6 +318,8 @@ public class Analyzer extends Thread {
         }
     }
 
+    
+
 
 
 }

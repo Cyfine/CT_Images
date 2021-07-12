@@ -110,11 +110,4 @@ public class JSONProcessor {
         return (int) (num += 0.5);
     }
 
-    public static void main(String[] args) throws IOException {
-        // CTag tag =
-        // getImgTag("/home/carter/Pictures/Confidential_Data/CT_images/HEP0001/Se3Im48.json");
-        CTag tag = getImgTag("D:/Confidential_Data/CT_images/HEP0001/Se3Im48.json");
-
-    }
-
 }
