@@ -3,7 +3,10 @@ package edu.hkbu.app;
 import edu.hkbu.util.imageutil.DHash;
 import edu.hkbu.util.imageutil.ImageViewer;
 import edu.hkbu.util.io.FileReader;
+import edu.hkbu.util.io.FileReader.CT_Volume;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -12,14 +15,6 @@ import static edu.hkbu.util.io.FileReader.getCTVolume;
 import static edu.hkbu.util.stringutil.StringUtils.containsIgnoreCase;
 import static edu.hkbu.util.stringutil.Tokenizer.tokenize;
 
-/*
-The path of the test file: D:/Confidential_Data/CT images/HEP0001 , header Se2Im, start Index 30
-load D:/Confidential_Data/CT_images/HEP0001 Se2Im 30 jpg
-
-
-linux :
-load /home/carter/Pictures/Confidential_Data/CT_images/HEP0001/ Se2Im 30 jpg
- */
 public class runApp {
 
     private List<Analyzer> threads = new LinkedList<>();
@@ -27,10 +22,22 @@ public class runApp {
     private int lastProcessThreadIdx = -1;
 
     public static void main(String[] args) {
+        printMenu();
         new runApp().start();
     }
 
-    public void start() {
+    private static void printMenu() {
+        System.out.println("+-------------------------------------+");
+        System.out.println("|                                     |");
+        System.out.println("|             CT_Images               |");
+        System.out.println("|                                     |");
+        System.out.println("+-------------------------------------+");
+        System.out.println("Available  commands: load, analyze, show, exit, help.");
+        System.out.println("Detailed information for each command, use \"help [command]\" ");
+        System.out.println("Please visit https://github.com/Cyfine/CT_Images to get source code of this project.\n");
+    }
+
+    private void start() {
         Scanner in = new Scanner(System.in);
         while (true) {
 
@@ -57,9 +64,6 @@ public class runApp {
                         list(cmdArgs);
                     case "dHash":
                         break;
-                    // case "test":
-                    // main_0(new String[]{"main"});
-                    // break;
                     case "output":
                         output(cmdArgs);
                         break;
@@ -77,7 +81,7 @@ public class runApp {
     private String[] getUserInput(Scanner in, String header) {
         String input;
         String[] result;
-        for (;;) {
+        for (; ; ) {
             System.out.print(header);
             input = in.nextLine();
             result = tokenize(input);
@@ -90,8 +94,6 @@ public class runApp {
     private String[] getUserInput(Scanner in) {
         return getUserInput(in, ">");
     }
-
-
 
     // =========================== Commands ===================================
     // private void load(String[] cmdArgs) throws Exception {
@@ -135,12 +137,96 @@ public class runApp {
     // }
     // }
 
-    public void show() throws Exception {
-        if (volumes != null && volumes.size()!=0) {
-            ImageViewer.showVolumes(volumes);
+    private void show() throws Exception {
+        bootImageViewer(false);
+    }
+
+    private void bootImageViewer(boolean isOutputMode) {
+        if (volumes != null && volumes.size() != 0) {
+            ImageViewer.showVolumes(volumes, isOutputMode);
         } else {
-            throw new Exception("No images loaded yet.");
+            System.out.println("No images loaded yet.");
         }
+    }
+
+    private void output(String[] cmdArgs) throws Exception {
+        if (cmdArgs.length < 2) {
+            throw new Exception("Invalid number of arguments.");
+        }
+        if (cmdArgs[1].charAt(0) != '-') {
+            throw new Exception("Invalid expression sign \"" + cmdArgs[1].charAt(0) + "\".");
+        }
+        parameterInterpreter(cmdArgs[1], new char[]{'i', 'a'}, this::outputImages, () -> outputFiles(cmdArgs));
+
+
+    }
+
+    private void parameterInterpreter(String expression, char[] paramChars, Executable... exe) throws Exception {
+        if (paramChars.length != exe.length) {
+            return;
+        }
+        expression = expression.toLowerCase();
+
+        for (int i = 1; i < expression.length(); i++) {
+            char currentChar = expression.charAt(i);
+            for (int j = 0; j < paramChars.length; j++) {
+                if (currentChar == paramChars[j]) {
+                    exe[j].execute();
+                    break;
+                }
+
+                if (j == paramChars.length - 1) {
+                    throw new Exception("Invalid parameter " + currentChar);
+                }
+            }
+        }
+
+
+    }
+
+    private void outputFiles(String[] cmdArgs) {
+        String fileName;
+        PrintWriter writer;
+        boolean unAnalyzed = false;
+        if (cmdArgs.length < 3) {
+            fileName = "analyzeResult.txt";
+        } else if (cmdArgs.length == 3) {
+            fileName = cmdArgs[2];
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 2; i < cmdArgs.length; i++) {
+                sb.append(cmdArgs[i]);
+                if (i == cmdArgs.length - 1) {
+                    sb.append(".txt");
+                } else {
+                    sb.append("_");
+                }
+            }
+            fileName = sb.toString();
+        }
+
+        try {
+            writer = new PrintWriter("./output/files/" + fileName);
+            for (CT_Volume vol : volumes) {
+                if (vol.getAnalyzer() != null) {
+                    vol.getAnalyzer().outPutAttributes(writer);
+                } else {
+                    System.out.println("CT_Volumes " + vol + " not analyzed yet.");
+                    unAnalyzed = true;
+                }
+            }
+            if (unAnalyzed) {
+                System.out.println("Hint: Use \"analyze\" command to analyze loaded CT volumes.");
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("File not found error.");
+        }
+
+    }
+
+    private void outputImages() {
+        bootImageViewer(true);
     }
 
     private void analyze() throws Exception {
@@ -190,9 +276,6 @@ public class runApp {
 
     }
 
-    private void output(String[] cmdArgs) {
-
-    }
 
     private void list(String[] cmdArgs) throws Exception {
         if (threads.size() == 0 || threads == null) {
@@ -227,6 +310,11 @@ public class runApp {
             }
         }
         return result;
+    }
+
+    @FunctionalInterface
+    private interface Executable {
+        void execute();
     }
 
     // =========================== helper methods =============================
