@@ -19,6 +19,7 @@ package edu.hkbu.app;
 import edu.hkbu.util.imageutil.ImgAttributeCal;
 import edu.hkbu.util.io.FileReader;
 
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,7 +27,7 @@ import static edu.hkbu.util.io.FileReader.CT_Volume;
 
 
 public class Analyzer extends Thread {
-    protected  CT_Volume volume;
+    protected CT_Volume volume;
     protected List[] attrib = new List[2]; // [0] for average, [1] for standard deviation
     protected List<int[]> histPlot;
     protected double imgAvg_avg; // the average of "image pixel averages"
@@ -45,7 +46,6 @@ public class Analyzer extends Thread {
     // loaded into the program.
 
 
-
     //========================= Constructors =============================
 
     /**
@@ -55,9 +55,8 @@ public class Analyzer extends Thread {
      *
      * @param volume a CT volume object that encapsulate essential information of a CT_volume
      * @see FileReader
-     *
      */
-    public Analyzer(CT_Volume volume)  {
+    public Analyzer(CT_Volume volume) {
         this.volume = volume;
         volume.linkAnalyzer(this);
         avg_mutateCluster = new LinkedList<>();
@@ -66,16 +65,14 @@ public class Analyzer extends Thread {
     }
 
 
-
-
     //======================= thread execution ==========================
-    public void run()   {
+    public void run() {
         List[] result = new List[0];
 
         try {
             result = ImgAttributeCal.calAttribute(volume.getImages());
         } catch (InterruptedException e) {
-         System.out.println("Thread execution interrupted");
+            System.out.println("Thread execution interrupted");
         }
 
         attrib[0] = result[0];
@@ -300,7 +297,6 @@ public class Analyzer extends Thread {
     }
 
     void printAttributes() {
-
         System.out.println(volume);
         System.out.println("Average of images averages:" + imgAvg_avg);
         System.out.println("Standard deviation of images averages:" + imgAvg_sd);
@@ -308,19 +304,36 @@ public class Analyzer extends Thread {
         System.out.println("Average of images standard deviation:" + imgSD_avg);
         System.out.println("Standard deviation of images standard deviation:" + imgSD_sd);
         System.out.println("Cluster (SD)" + clusters.get(1));
-        System.out.println("Processed cluster (avg):");
+        System.out.println("Images clusters with abnormal CT window (avg):");
         for (List<Integer> list : avg_mutateCluster) {
             System.out.println(list);
         }
-        System.out.println("Processed cluster(sd): ");
+        System.out.println("Images clusters with abnormal CT window (sd): ");
         for (List<Integer> list : sd_mutateCluster) {
             System.out.println(list);
         }
     }
 
-    
-
-
+    void outPutAttributes(PrintWriter writer) {
+        writer.println(volume);
+        writer.println("Average of images averages:" + imgAvg_avg);
+        writer.println("Standard deviation of images averages:" + imgAvg_sd);
+        writer.println("Cluster (Avg)" + clusters.get(0));
+        writer.println("Average of images standard deviation:" + imgSD_avg);
+        writer.println("Standard deviation of images standard deviation:" + imgSD_sd);
+        writer.println("Cluster (SD)" + clusters.get(1));
+        writer.println("Images clusters with abnormal CT window (avg):");
+        for (List<Integer> list : avg_mutateCluster) {
+            writer.println(list);
+        }
+        writer.println("Images clusters with abnormal CT window (sd): ");
+        for (List<Integer> list : sd_mutateCluster) {
+            writer.println(list);
+        }
+    }
 
 }
+
+
+
 

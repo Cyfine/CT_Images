@@ -20,15 +20,37 @@ public class ImageViewer extends PApplet {
     boolean mouseReleased = true;
     boolean hide = true;
     boolean showMouseCoordinate = false;
+    boolean outputMode = false;
+    Executable executeMode;
 
     public ImageViewer(List<CT_Volume> volumes) {
         this.VOLUMES = volumes;
+    }
+
+    public ImageViewer(List<CT_Volume> volumes, boolean isOutputMode) {
+        this(volumes);
+        outputMode = isOutputMode;
     }
 
     /**
      * Initial configuration of the pop-up window
      */
     public void setup() {
+        if (outputMode) {
+           outputModeConfigure();
+        } else {
+            viewerModeConfigure();
+        }
+    }
+
+    private void outputModeConfigure() {
+        size(512, 512);
+        frame.setVisible(false);
+        executeMode = this::outputMode;
+        noLoop();
+    }
+
+    private void viewerModeConfigure() {
         size(512, 512);
         font = createFont("resources/JetBrainsMonoNL-Regular.ttf", 31);
 
@@ -38,6 +60,8 @@ public class ImageViewer extends PApplet {
 
         this.frame.setTitle(VOLUMES.get(currentVolIdx).toString() + " | "
                 + this.VOLUMES.get(currentVolIdx).getImageName(currentImageIndex));
+
+        executeMode = this::viewerMode;
         System.out
                 .println("Click \"Exit\" button to close the window. Otherwise the whole program will be terminated.");
     }
@@ -46,7 +70,7 @@ public class ImageViewer extends PApplet {
      * Drawing on the canvas window
      */
     public void draw() {
-        viewerMode();
+        executeMode.execute();
     }
 
     /**
@@ -85,18 +109,16 @@ public class ImageViewer extends PApplet {
     }
 
     private void outputSingleImage() {
-        mouseX = (int)0.5*width;
-        mouseY = (int)0.5*height;
         CT_Volume volume = VOLUMES.get(currentVolIdx);
         String imageName = volume.getImageName(currentImageIndex);
         image(volume.getImages().get(currentImageIndex), 0, 0);
         showTags(0, 5, 12);
-        outputCurrentFrame( volume.getFolderName() + "_" + imageName,"./output/");
+        outputCurrentFrame(volume.getFolderName() + "_" + imageName, "./output/images/");
         System.out.println("Output image: " + volume.getFolderName() + "_" + imageName);
     }
 
     private void outputMode() {
-        noLoop();
+        System.out.print("\r");
         int cnt = 0;
         for (currentVolIdx = 0; currentVolIdx < VOLUMES.size(); currentVolIdx++) {
             CT_Volume volume = VOLUMES.get(currentVolIdx);
@@ -104,15 +126,16 @@ public class ImageViewer extends PApplet {
                 if (volume.getTag(currentImageIndex) != null) {
                     String imageName = volume.getImageName(currentImageIndex);
                     image(volume.getImages().get(currentImageIndex), 0, 0);
-                    showTags(0, 5, 12);
-                    outputCurrentFrame(volume.getFolderName() + "_" + imageName,"./output/");
+                    showTags(5, 5, 12);
+                    outputCurrentFrame(volume.getFolderName() + "_" + imageName, "./output/images/");
                     System.out.println("Output image: " + volume.getFolderName() + "_" + imageName);
                     cnt++;
                 }
             }
         }
 
-        System.out.println("Total " + cnt + " files  outputted.");
+        System.out.println("Total " + cnt + " files outputted.");
+        this.frame.dispose();
 
     }
 
@@ -128,7 +151,7 @@ public class ImageViewer extends PApplet {
         int prevButtonX = 50;
         int arrowButtonY = 253;
 
-        showTags(0, 5, 12);
+        showTags(5, 5, 12);
         // buttons to switch image within volume
         genericButton(nextButtonX, arrowButtonY, 40, () -> {
             if (currentImageIndex < VOLUMES.get(currentVolIdx).getImages().size() - 1)
@@ -168,7 +191,7 @@ public class ImageViewer extends PApplet {
         }, PI, buttonAlpha.get(1));
 
         textButton(10, 500, "Exit", 25, () -> this.frame.dispose(), buttonAlpha.get(2));
-        textButton(240, 500, "Output", 25,() -> outputSingleImage(), buttonAlpha.get(2)); 
+        textButton(240, 500, "Output", 25, this::outputSingleImage, buttonAlpha.get(2));
     }
 
     private void showCoordinate(int x, int y) {
@@ -184,13 +207,16 @@ public class ImageViewer extends PApplet {
     }
 
     /**
-     * The static method to instantiate a ImageViewer instance
+     * The static method to instantiate a ImageViewer instance for users to view
+     * images or used to output tagged image as a imager renderer
      *
-     * @param volumes
+     * @param volumes      loaded volumes passed to the viewer
+     * @param isOutputMode indicate the mode, ture to output all tagged images,
+     *                     false to view the images
      */
-    public static void showVolumes(List<CT_Volume> volumes) {
+    public static void showVolumes(List<CT_Volume> volumes, boolean isOutputMode) {
         String[] appletArgs = { "ImageViewer" };
-        ImageViewer instance = new ImageViewer(volumes);
+        ImageViewer instance = new ImageViewer(volumes, isOutputMode);
         runSketch(appletArgs, instance);
     }
 
@@ -250,7 +276,7 @@ public class ImageViewer extends PApplet {
      * @param exe      ButtonAction interface with execute() implemented using
      *                 actions triggered by the button
      */
-    public void textButton(int x, int y, String title, int textSize, ImageViewer.ButtonAction exe, Float[] alpha) {
+    public void textButton(int x, int y, String title, int textSize, ImageViewer.Executable exe, Float[] alpha) {
         textSize(textSize);
 
         if (mouseListener(x, y, 0.6 * textSize * title.length(), textSize, "bl")) {
@@ -272,7 +298,7 @@ public class ImageViewer extends PApplet {
 
     }
 
-    public void genericButton(int x, int y, int length, ButtonAction exe, ButtonAction display, Float[] alpha) {
+    public void genericButton(int x, int y, int length, Executable exe, Executable display, Float[] alpha) {
 
         if (mouseListener(x, y, length, length, "center")) {
             alpha[0] = 255f;
@@ -290,7 +316,7 @@ public class ImageViewer extends PApplet {
 
     }
 
-    public void triangleButton(int x, int y, int length, ButtonAction exe, float angle, Float[] alpha) {
+    public void triangleButton(int x, int y, int length, Executable exe, float angle, Float[] alpha) {
         genericButton(x, y, (int) (1.3 * length), exe, () -> sideEquilateralTri(x, y, length, angle), alpha);
     }
 
@@ -327,7 +353,7 @@ public class ImageViewer extends PApplet {
      * triggered by the button.
      */
     @FunctionalInterface
-    public interface ButtonAction {
+    public interface Executable {
         void execute();
     }
 
@@ -341,9 +367,9 @@ public class ImageViewer extends PApplet {
         sb.append("[");
         for (int i = 0; i < a.length; i++) {
             if (i != a.length - 1)
-                sb.append("" + a[i] + ", ");
+                sb.append(a[i]).append(", ");
             else
-                sb.append("" + a[i] + "]");
+                sb.append(a[i]).append("]");
         }
         return sb.toString();
     }

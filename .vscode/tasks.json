@@ -3,7 +3,7 @@
 	"tasks": [
 		{
 			"type": "java",
-			"targetPath": "${workspaceFolder}/${workspaceFolderBasename}.jar",
+			"targetPath": "C:/Users/csyfcheng/Desktop/Build/${workspaceFolderBasename}.jar",
 			"elements": [
 				"${compileOutput}",
 				"${dependencies}"
