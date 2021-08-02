@@ -222,8 +222,8 @@ public class FileReader extends PApplet {
      *
      * @param files a List of files may contains different types of files
      * @return a Hash map which key is the certain file type (String of file
-     * extension), and each key binding a list that contains all the files
-     * having correspond file type of its key
+     *         extension), and each key binding a list that contains all the files
+     *         having correspond file type of its key
      */
     private HashMap<String, List<File>> separateFileType(List<File> files) {
         HashMap<String, List<File>> map = new HashMap<>();
@@ -246,11 +246,10 @@ public class FileReader extends PApplet {
 
     /**
      * This method will separate the images according to its sequential index.
-     * Images with continuous index will be put into same group. There may be
-     * image loss within single CT volume, when the index difference between two
-     * adjacent images is 2. Also the image may have void image index, such as
-     * "Se2Im.png". The image with void index will be ignored and reported in the
-     * console.
+     * Images with continuous index will be put into same group. There may be image
+     * loss within single CT volume, when the index difference between two adjacent
+     * images is 2. Also the image may have void image index, such as "Se2Im.png".
+     * The image with void index will be ignored and reported in the console.
      *
      * @param files List of presorted image files
      * @return A list of grouped image files.
@@ -357,21 +356,24 @@ public class FileReader extends PApplet {
         private Analyzer analyzer = null;
         private List<File> imageFile = null;
 
+        private int[] marked;
+
         String parentPath;
         String startImageName; // name of the first image in the CT volume
         String endImageName;
 
         public CT_Volume(String parentPath, String startImageName, String endImageName, List<PImage> images) {
-            this.images = new LinkedList<>();
 
             this.parentPath = parentPath;
             this.startImageName = startImageName;
             this.endImageName = endImageName;
             this.images = images;
+
+            marked = new int[images.size()];
         }
 
         public CT_Volume(String parentPath, String startImageName, String endImageName, List<PImage> images,
-                         List<File> imageFile, HashMap<PImage, CTag> tagsMap) {
+                List<File> imageFile, HashMap<PImage, CTag> tagsMap) {
             this(parentPath, startImageName, endImageName, images);
             this.imageFile = imageFile;
             this.tags = tagsMap;
@@ -395,29 +397,51 @@ public class FileReader extends PApplet {
             return imageFile.get(index).getName();
         }
 
-        public String getFolderName(){
+        public String getFolderName() {
             return imageFile.get(0).getParentFile().getName();
         }
 
         public CTag getTag(PImage img) {
             if (tags != null && tags.size() != 0)
                 return tags.get(img);
-            else return null;
+            else
+                return null;
         }
 
         public CTag getTag(int idx) {
             if (tags != null && tags.size() != 0)
                 return tags.get(images.get(idx));
-            else return null;
+            else
+                return null;
         }
 
+        public void mark(int idx) {
+            if (idx > -1 && idx <= marked.length - 1) {
+                if (marked[idx] == 0)
+                    marked[idx] = 1;
+                else
+                    marked[idx] = 0;
+            }
+        }
+
+        public String[] getMarkedCSV() {
+            String[] result = new String[marked.length];
+            for (int i = 0; i < marked.length; i++) {
+                result[i] = getImageName(i) + "," + marked[i];
+            }
+            return result;
+        }
+
+        public boolean isMarked(int idx) {
+            if (idx > -1 && idx <= marked.length - 1)
+                return marked[idx] == 1;
+            else
+                return false;
+        }
 
         public Analyzer getAnalyzer() {
             return analyzer;
         }
-
-
-
 
         public void linkAnalyzer(Analyzer analyzer) {
             this.analyzer = analyzer;

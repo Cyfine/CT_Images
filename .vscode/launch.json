@@ -6,6 +6,21 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch FileReader",
+            "request": "launch",
+            "mainClass": "edu.hkbu.util.io.FileReader",
+            "projectName": "CT_Images_89366952"
+        },
+        {
+            "type": "java",
+            "name": "Launch runApp",
+            "request": "launch",
+            "mainClass": "edu.hkbu.app.runApp",
+            "projectName": "CT_Images_89366952",
+            "vmArgs": "-Xmx8192m"
+        },
+        {
+            "type": "java",
             "name": "Launch JSONProcessor",
             "request": "launch",
             "mainClass": "edu.hkbu.util.io.JSONProcessor",

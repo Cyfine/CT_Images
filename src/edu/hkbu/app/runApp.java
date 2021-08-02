@@ -81,7 +81,7 @@ public class runApp {
     private String[] getUserInput(Scanner in, String header) {
         String input;
         String[] result;
-        for (; ; ) {
+        for (;;) {
             System.out.print(header);
             input = in.nextLine();
             result = tokenize(input);
@@ -156,8 +156,8 @@ public class runApp {
         if (cmdArgs[1].charAt(0) != '-') {
             throw new Exception("Invalid expression sign \"" + cmdArgs[1].charAt(0) + "\".");
         }
-        parameterInterpreter(cmdArgs[1], new char[]{'i', 'a'}, this::outputImages, () -> outputFiles(cmdArgs));
-
+        parameterInterpreter(cmdArgs[1], new char[] { 'i', 'a', 'v' }, this::outputImages, () -> outputFiles(cmdArgs),
+                () -> outputAnnotationCSV());
 
     }
 
@@ -180,7 +180,6 @@ public class runApp {
                 }
             }
         }
-
 
     }
 
@@ -206,7 +205,7 @@ public class runApp {
         }
 
         try {
-            writer = new PrintWriter("./output/files/" + fileName);
+            writer = new PrintWriter(fileName);
             for (CT_Volume vol : volumes) {
                 if (vol.getAnalyzer() != null) {
                     vol.getAnalyzer().outPutAttributes(writer);
@@ -225,8 +224,25 @@ public class runApp {
 
     }
 
+    private void outputAnnotationCSV() {
+        try {
+            PrintWriter writer = new PrintWriter("annotation_file.csv");
+
+            for (int i = 0; i < volumes.size(); i++) {
+                String[] out = volumes.get(i).getMarkedCSV();
+                for (int j = 0; j < out.length; j++) {
+                    writer.println(out[j]);
+                }
+            }
+            
+            writer.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void outputImages() {
-        bootImageViewer(true);
+        bootImageViewer(true); 
     }
 
     private void analyze() throws Exception {
@@ -275,7 +291,6 @@ public class runApp {
         }
 
     }
-
 
     private void list(String[] cmdArgs) throws Exception {
         if (threads.size() == 0 || threads == null) {

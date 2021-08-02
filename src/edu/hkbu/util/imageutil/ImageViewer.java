@@ -37,7 +37,7 @@ public class ImageViewer extends PApplet {
      */
     public void setup() {
         if (outputMode) {
-           outputModeConfigure();
+            outputModeConfigure();
         } else {
             viewerModeConfigure();
         }
@@ -142,7 +142,12 @@ public class ImageViewer extends PApplet {
     private void viewerMode() {
         textFont(font);
         background(43, 43, 43);
+
         image(VOLUMES.get(currentVolIdx).getImages().get(currentImageIndex), 0, 0);
+        fill(165, 179, 194);
+        if (VOLUMES.get(currentVolIdx).isMarked(currentImageIndex)) {
+            text("MARKED", 400, 500, 15);
+        }
 
         textButton(80, 500, "Coordinate", 25, () -> showMouseCoordinate = !showMouseCoordinate, buttonAlpha.get(2));
         showCoordinate(460, 15);
@@ -192,6 +197,12 @@ public class ImageViewer extends PApplet {
 
         textButton(10, 500, "Exit", 25, () -> this.frame.dispose(), buttonAlpha.get(2));
         textButton(240, 500, "Output", 25, this::outputSingleImage, buttonAlpha.get(2));
+    }
+
+    public void keyPressed() {
+        if (keyCode == ' ') {
+            VOLUMES.get(currentVolIdx).mark(currentImageIndex);
+        }
     }
 
     private void showCoordinate(int x, int y) {
