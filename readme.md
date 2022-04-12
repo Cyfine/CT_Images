@@ -70,9 +70,10 @@ To identify anomalous images, the algorithm employs statistical confidence inter
 For both average pixel intensity and standard deviation, confidence intervals are established:
 
 - **For Average Pixel Intensity**:
-  $$  
+
+$$  
   CI_{\mu} = [\mu_{\text{avg}} - \sigma_{\mu}, \mu_{\text{avg}} + \sigma_{\mu}]
-  $$
+$$
 
 
 $$
